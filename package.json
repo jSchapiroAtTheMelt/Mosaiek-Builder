@@ -1,0 +1,23 @@
+{
+  "name": "mosaiek-builder",
+  "version": "1.0.0",
+  "description": "NPM module for Mosaic Generation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jSchapiroAtTheMelt/Mosaiek-Builder.git"
+  },
+  "keywords": [
+    "mosaic",
+    "mosaiek"
+  ],
+  "author": "Jonathan Schapiro <jschapir@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jSchapiroAtTheMelt/Mosaiek-Builder/issues"
+  },
+  "homepage": "https://github.com/jSchapiroAtTheMelt/Mosaiek-Builder#readme"
+}
