@@ -4,7 +4,8 @@
   "description": "NPM module for Mosaic Generation",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint index.js server/**/*.js",
+    "test": "npm run lint && mocha --recursive"
   },
   "repository": {
     "type": "git",
@@ -19,5 +20,23 @@
   "bugs": {
     "url": "https://github.com/jSchapiroAtTheMelt/Mosaiek-Builder/issues"
   },
-  "homepage": "https://github.com/jSchapiroAtTheMelt/Mosaiek-Builder#readme"
+  "homepage": "https://github.com/jSchapiroAtTheMelt/Mosaiek-Builder#readme",
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4",
+    "supertest": "^1.1.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "dotenv": "^1.2.0",
+    "express": "^4.13.3",
+    "jsonwebtoken": "^5.5.4",
+    "morgan": "^1.6.1",
+    "parse-cloud-express": "^1.1.1"
+  },
+  "pre-commit": [
+    "test"
+  ]
 }
+
+        
