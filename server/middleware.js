@@ -8,14 +8,18 @@ module.exports = (app) => {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(morgan('dev'));
-  app.use(/\/hooks?/, ParseCloud.app);
+  app.use('/hooks', ParseCloud.app);
 };
 
 //TODO: http://blog.parse.com/learn/using-node-js-with-parse/
 
-Parse.Cloud.define('/mosaiek/contribute', (req, res) => {
-  console.log(req.body);
-  res.json(req.body);
+// Parse.Cloud.define('/mosaiek/contribute', (req, res) => {
+//   console.log(req.body);
+//   res.json(req.body);
+// });
+
+Parse.Cloud.afterSave('/mosaiek/contribute', req => {
+  console.log(req);
 });
 
 // Parse.Cloud.define('findBacon', (req, res) => {
