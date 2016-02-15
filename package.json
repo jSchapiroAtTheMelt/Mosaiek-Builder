@@ -4,6 +4,7 @@
   "description": "NPM module for Mosaic Generation",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "lint": "eslint index.js server/**/*.js",
     "test": "npm run lint && mocha --recursive"
   },
