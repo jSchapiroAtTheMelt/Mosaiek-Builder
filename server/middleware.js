@@ -15,7 +15,7 @@ module.exports = (app) => {
 //TODO: http://blog.parse.com/learn/using-node-js-with-parse/
 
 
-Parse.Cloud.define('MosaicImages', (req, res) => {
+Parse.Cloud.define('/hooks/mosaiek/contribute', (req, res) => {
   console.log(req.body);
   res.json(req.body);
 });
