@@ -12,6 +12,9 @@ module.exports = (app) => {
 };
 
 //TODO: http://blog.parse.com/learn/using-node-js-with-parse/
+app.post('/hooks/mosaiek/contribute',(req,res) => {
+  console.log(req.body);
+});
 
 Parse.Cloud.define('/mosaiek/contribute', (req, res) => {
   console.log(req.body);
