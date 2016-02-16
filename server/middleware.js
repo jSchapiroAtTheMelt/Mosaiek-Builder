@@ -11,7 +11,8 @@ module.exports = (app) => {
   app.use(morgan('dev'));
   app.use('/hooks', ParseCloud.app);
   app.post('/hooks/mosaiek/contribute',(req,res) => {
-
+    console.log('req.body',req.body)
+    res.send('hello world');
   });
   Parse.Cloud.afterSave('MosaicImage', (req, res) => {
     console.log(req.body);
