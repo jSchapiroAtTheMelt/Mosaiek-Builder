@@ -35,15 +35,15 @@ class Mosaic {
       let Mosaic = Parse.Object.extend("Mosaic");
       let mosaicQuery = new Parse.Query(Mosaic);
       let self = this;
+      
       mosaicQuery.get(this.input_filename , {
         success: function(mosaic) {
           console.dir(mosaic.get('image').name());
           // The object was retrieved successfully.
           //store relevant info about the mosaic in the info object
           self.input.image = mosaic.get('image').url();
-          console.log('data',self.input.image);
+          
           //store image locally                 
-
           http.request(self.input.image, function(response) {                                        
             let data = new Stream();                                                    
 
@@ -53,15 +53,36 @@ class Mosaic {
 
             response.on('end', function() {                                             
               fs.writeFileSync('../mosaic.jpg', data.read());  
+
+              //get main image stats
                 gm('mosaic.jpg')
                 .size(function (err, size) {
                   if (!err) {
+
                     console.log('width = ' + size.width);
                     console.log('height = ' + size.height);
                     self.input.width = size.width;
                     self.input.height = size.height;
+
+                    //2) get what a cell width and height should be based on rows and columns
+                    if (self.input.width % self.columns){
+                      console.log('width not a multiple of columns')
+                    }
+
+                    if (self.input.height % self.rows){
+                      console.log('height not a multiple of rows')
+                    }
+
+
+                    self.cell.width = self.input.width / self.columns;
+                    self.cell.height = self.input.height / self.rows;
                     
+                    console.log('width',self.cell.width);
+                    console.log('height',self.cell.height);
+
+
                   } else {
+
                     console.log('error finding size', err); 
                     throw err;
                   }
@@ -77,39 +98,12 @@ class Mosaic {
         }
       });
 
-
-
-/*
-
-  gm('mosaic.jpg')
-            .size(function (err, size) {
-              if (!err) {
-                console.log('width = ' + size.width);
-                self.index.width = size.width;
-                console.log('height = ' + size.height);
-                self.index.height = size.height;
-              } else {
-                console.log('error finding size', err); 
-                throw err;
-              }
-            });
-*/
-   
-   /*
-    2) get what a cell width and height should be based on rows and columns
-    if (this.input['width'] % this.columns){
-      console.log('width not a multiple of columns')
-    }
-
-    if (this.input['height'] % this.rows){
-      console.log('height not a multiple of rows')
-    }
-
-    this.cell['width'] = this.input['width'] / this.columns;
-    this.cell['height'] = this.input['height'] / this.rows;
     
-    3) genthumbs
-    */
+   
+    //3) genthumbs
+
+    //4 load thumbs
+    
   }
 
   gen_thumbs() {
