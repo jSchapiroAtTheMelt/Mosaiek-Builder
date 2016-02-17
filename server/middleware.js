@@ -3,16 +3,21 @@ let bodyParser = require('body-parser');
 let morgan = require('morgan');
 let ParseCloud = require('parse-cloud-express');
 let Parse = ParseCloud.Parse;
+let Mosaic = require('../Mosaic/Mosaic.js');
 
 
 module.exports = (app) => {
+
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(morgan('dev'));
-  app.use('/hooks', ParseCloud.app);
+  //app.use('/hooks', ParseCloud.app);
   
   app.post('/hooks/mosaiek/contribute',(req,res) => {
-    console.log('req.body',req.body)
+    
+    
+    new Mosaic('UI3wo4OfJ3',5,5,true);
+
     res.send('hello world');
   });
 
