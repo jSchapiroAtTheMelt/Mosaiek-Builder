@@ -124,26 +124,40 @@ class Mosaic {
 
     fs.readdir(mosaicTilesDir,function(err,mosaicImages){
       if (err) {console.log('Error while generating mosaic map',err)}
-       
+       let counter = 0;
         for (let image in mosaicImages) {
-          self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image)]);
+          self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image,mosaicImages.length,counter,function(){
+            console.log('time to move on');
+          })]);
+          counter++;
         } 
-        
+        console.log(self.mosaic_map);
     });
 
     
 
   }
 
-  gen_avg_rgb (image,mapIndex){
+  gen_avg_rgb (image,mapIndex,count,counter,callback){
+    let self = this;
+    
     gm('./mosaic_tiles/' + image).scale(1,1).write('mosaic_tiles/'+ image.toString() + '.txt',function(){
       fs.readFile('mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
         if (data) {
           let tempArray = data.split(/\(([^)]+)\)/);
           let rgbString = tempArray[1].split(',');
-          console.log(rgbString);
+          
+          
+          self.mosaic_map[mapIndex][1] = rgbString;
+          counter ++;
+          console.log('counte',counter)
+          
+          if (counter == count) {
+            callback();
+          }
+            
+          
         }
-        
         
       });
     });
