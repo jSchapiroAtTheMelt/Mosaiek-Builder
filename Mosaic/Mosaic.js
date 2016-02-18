@@ -122,16 +122,24 @@ class Mosaic {
     let mosaicTilesDir = './mosaic_tiles/';
     let self = this;
 
+    //create array with [image-name.jpg,avgrgb value]
     fs.readdir(mosaicTilesDir,function(err,mosaicImages){
+
       if (err) {console.log('Error while generating mosaic map',err)}
        let counter = 0;
         for (let image in mosaicImages) {
+          console.log('help')
+          
           self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image,mosaicImages.length,counter,function(){
-            console.log('time to move on');
+            counter++;
+
+            if (counter == mosaicImages.length-1){
+              console.log(self.mosaic_map)
+            }
           })]);
-          counter++;
+          
         } 
-        console.log(self.mosaic_map);
+        // we need to ensure that all files have been loaded before gen avg rgb
     });
 
     
@@ -139,6 +147,7 @@ class Mosaic {
   }
 
   gen_avg_rgb (image,mapIndex,count,counter,callback){
+    
     let self = this;
     
     gm('./mosaic_tiles/' + image).scale(1,1).write('mosaic_tiles/'+ image.toString() + '.txt',function(){
@@ -146,21 +155,22 @@ class Mosaic {
         if (data) {
           let tempArray = data.split(/\(([^)]+)\)/);
           let rgbString = tempArray[1].split(',');
-          
-          
+          console.log('analyzing',rgbString)
           self.mosaic_map[mapIndex][1] = rgbString;
-          counter ++;
-          console.log('counte',counter)
           
-          if (counter == count) {
+          
             callback();
-          }
-            
           
         }
         
       });
     });
+  }
+
+  gen_initial_mosaic() {
+    //for ever value in mosaic_map
+    //take original image, convert it to the color of that tile and replace it
+    //merge all new images in mosaic_tiles into single image and send back accross the wire
   }
 
   gen_thumbs() {
