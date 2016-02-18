@@ -17,6 +17,7 @@ class Mosaic {
     this.thumbs = [];
     this.matrix = [];
     this.output;
+    this.mosaic_map = [];
     
     //public vars
     this.input_filename = input_filename;
@@ -57,6 +58,7 @@ class Mosaic {
               //get main image stats
                 gm('mosaic.jpg')
                 .size(function (err, size) {
+                  
                   if (!err) {
 
                     console.log('width = ' + size.width);
@@ -81,6 +83,16 @@ class Mosaic {
                     console.log('height',self.cell.height);
 
 
+                    //convert into grid - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
+                    im.convert(['mosaic.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'mosaic_tiles/mosaic.jpg'], function(err,data) {
+                        if(err) { throw err; }
+                        
+                        self.gen_mosaic_map();
+                        
+                    });
+                    // store in redis - key = mosaic , value = grid of images
+                    console.log('done')
+
                   } else {
 
                     console.log('error finding size', err); 
@@ -104,6 +116,37 @@ class Mosaic {
 
     //4 load thumbs
     
+  }
+
+  gen_mosaic_map() {
+    let mosaicTilesDir = './mosaic_tiles/';
+    let self = this;
+
+    fs.readdir(mosaicTilesDir,function(err,mosaicImages){
+      if (err) {console.log('Error while generating mosaic map',err)}
+       
+        for (let image in mosaicImages) {
+          self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image)]);
+        } 
+        
+    });
+
+    
+
+  }
+
+  gen_avg_rgb (image,mapIndex){
+    gm('./mosaic_tiles/' + image).scale(1,1).write('mosaic_tiles/'+ image.toString() + '.txt',function(){
+      fs.readFile('mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
+        if (data) {
+          let tempArray = data.split(/\(([^)]+)\)/);
+          let rgbString = tempArray[1].split(',');
+          console.log(rgbString);
+        }
+        
+        
+      });
+    });
   }
 
   gen_thumbs() {

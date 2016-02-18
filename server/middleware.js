@@ -16,7 +16,7 @@ module.exports = (app) => {
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
     
-    new Mosaic('UI3wo4OfJ3',5,5,true);
+    new Mosaic('UI3wo4OfJ3',2,2,true);
 
     res.send('hello world');
   });
