@@ -6,6 +6,7 @@ let gm = require('gm');
 let fs = require('fs');
 let http = require('http');                                              
 let  Stream = require('stream').Transform;
+let sm = require('simple-imagemagick');
 
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
@@ -86,8 +87,11 @@ class Mosaic {
                     //convert into grid - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
                     im.convert(['mosaic.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'mosaic_tiles/mosaic.jpg'], function(err,data) {
                         if(err) { throw err; }
+                        console.log('generating mosaic',data)
                         
+                          
                         self.gen_mosaic_map();
+                          
                         
                     });
                     // store in redis - key = mosaic , value = grid of images
@@ -121,24 +125,51 @@ class Mosaic {
   gen_mosaic_map() {
     let mosaicTilesDir = './mosaic_tiles/';
     let self = this;
+    let loopcount = 0;
+    function getMosaicTiles() {
+      //create array with [image-name.jpg,avgrgb value]
 
-    //create array with [image-name.jpg,avgrgb value]
-    fs.readdir(mosaicTilesDir,function(err,mosaicImages){
+      fs.readdir(mosaicTilesDir,function(err,mosaicImages){
 
-      if (err) {console.log('Error while generating mosaic map',err)}
-       let counter = 0;
-        for (let image in mosaicImages) {
-          self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image,mosaicImages.length,counter,function(){
-            counter++;
+        let count = 0;
+        var intervalObject = setInterval(function () { 
+                count++; 
+                console.log(count, 'seconds passed'); 
+                
+                if ((mosaicImages.length - 1) >= (self.rows * self.rows)) { 
 
-            if (counter == mosaicImages.length-1){
-               console.log('free',self.mosaic_map);
-               self.gen_initial_mosaic();
-            }
-          })]);
-          
-        } 
-    });
+                    console.log('exiting'); 
+                    console.log('data',mosaicImages.length);
+                    clearInterval(intervalObject); 
+                    moveOn()
+                } else {
+                  loopcount ++;
+                  console.log('here we go again',loopcount);
+                  clearInterval(intervalObject);
+                  getMosaicTiles();
+                }
+            }, 1000);
+
+        if (err) {console.log('Error while generating mosaic map',err)}
+
+        function moveOn() {
+          let counter = 0;
+           for (let image in mosaicImages) {
+             self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image,mosaicImages.length,counter,function(){
+               counter++;
+
+               if (counter == mosaicImages.length-1){
+                  console.log('free',self.mosaic_map);
+                  self.gen_initial_mosaic();
+               }
+             })]);
+           } 
+        }
+
+      });
+    }
+
+    getMosaicTiles()
 
   }
 
@@ -167,7 +198,7 @@ class Mosaic {
 
     gm('mosaic.jpg').resize(this.cell.width,this.cell.height).write('mosaic_tile.jpg',function(){
       //for each image in the mosaic map
-      
+      let count = 0;
       for (let mosaic of self.mosaic_map){
         let rgbVal = mosaic[1];
         console.log('RGB', mosaic);
@@ -176,11 +207,17 @@ class Mosaic {
             let red = rgbVal[0].toString();
             let green = rgbVal[1].toString();
             let blue = rgbVal[2].toString();
+            
             // convert -fill blue -colorize 50% mosaic_tile.jpg mosaic_tile_colored.jpg
             im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '90%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic[0].toString()],function(err,data){
-              if (data) {
-                console.log('yayy!!!')
-              }
+              if (err){console.log('something went wrong in generating colored tiles')}
+                //console.log('finished generating colored tiles')
+                count ++;
+                console.log('count',count);
+                if (count == self.mosaic_map.length-1) {
+                  self.merge_colored_tiles();
+                }
+                
             });
           }
         }
@@ -191,6 +228,34 @@ class Mosaic {
     //for ever value in mosaic_map
     //take original image, convert it to the color of that tile and replace it
     //merge all new images in mosaic_tiles into single image and send back accross the wire
+  }
+
+  merge_colored_tiles() {
+    let self = this;
+    
+    console.log('merging colored tiles')
+    let compoundTileString = self.mosaic_map.reduce(function(previousValue, currentValue, currentIndex, array){
+      return previousValue + currentValue[0] + ' ';
+    });
+    
+    let cleanCompoundTileString = compoundTileString.slice(10).toString();
+    let mosaicTilesArray = cleanCompoundTileString.split(' ');
+    mosaicTilesArray = mosaicTilesArray.map(function(value){
+      return 'mosaic_tiles_converted/' + value;
+    });
+    mosaicTilesArray.sort(naturalSorter);
+    mosaicTilesArray[mosaicTilesArray.length - 1] = '-tile';
+    mosaicTilesArray.push(self.rows.toString() + 'x' + self.columns.toString());
+    mosaicTilesArray.push('-geometry');
+    mosaicTilesArray.push('+0+0');
+    mosaicTilesArray.push('finalMosaic.jpg');
+    console.log(mosaicTilesArray);
+    
+    sm.montage(mosaicTilesArray, function(err, stdout){
+      if (err) console.log(err);
+      console.log('hey there');
+    });
+    
   }
 
   gen_thumbs() {
@@ -220,6 +285,26 @@ class Mosaic {
     
   }
 
+}
+
+function naturalSorter(as, bs){
+    var a, b, a1, b1, i= 0, n, L,
+    rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
+    if(as=== bs) return 0;
+    a= as.toLowerCase().match(rx);
+    b= bs.toLowerCase().match(rx);
+    L= a.length;
+    while(i<L){
+        if(!b[i]) return 1;
+        a1= a[i],
+        b1= b[i++];
+        if(a1!== b1){
+            n= a1-b1;
+            if(!isNaN(n)) return n;
+            return a1>b1? 1:-1;
+        }
+    }
+    return b[i]? -1:0;
 }
 
 module.exports = Mosaic;
