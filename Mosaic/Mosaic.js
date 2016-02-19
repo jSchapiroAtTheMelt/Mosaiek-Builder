@@ -128,21 +128,17 @@ class Mosaic {
       if (err) {console.log('Error while generating mosaic map',err)}
        let counter = 0;
         for (let image in mosaicImages) {
-          console.log('help')
-          
           self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image,mosaicImages.length,counter,function(){
             counter++;
 
             if (counter == mosaicImages.length-1){
-              console.log(self.mosaic_map)
+               console.log('free',self.mosaic_map);
+               self.gen_initial_mosaic();
             }
           })]);
           
         } 
-        // we need to ensure that all files have been loaded before gen avg rgb
     });
-
-    
 
   }
 
@@ -155,11 +151,9 @@ class Mosaic {
         if (data) {
           let tempArray = data.split(/\(([^)]+)\)/);
           let rgbString = tempArray[1].split(',');
-          console.log('analyzing',rgbString)
           self.mosaic_map[mapIndex][1] = rgbString;
           
-          
-            callback();
+          callback();
           
         }
         
@@ -168,6 +162,32 @@ class Mosaic {
   }
 
   gen_initial_mosaic() {
+    console.log('genearting intial mosaic....')
+    let self = this;
+
+    gm('mosaic.jpg').resize(this.cell.width,this.cell.height).write('mosaic_tile.jpg',function(){
+      //for each image in the mosaic map
+      
+      for (let mosaic of self.mosaic_map){
+        let rgbVal = mosaic[1];
+        console.log('RGB', mosaic);
+        if (rgbVal) {
+          if (rgbVal.length >=3){
+            let red = rgbVal[0].toString();
+            let green = rgbVal[1].toString();
+            let blue = rgbVal[2].toString();
+            // convert -fill blue -colorize 50% mosaic_tile.jpg mosaic_tile_colored.jpg
+            im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '90%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic[0].toString()],function(err,data){
+              if (data) {
+                console.log('yayy!!!')
+              }
+            });
+          }
+        }
+      }
+        //take mosaic_tile and convert it to the avg rgb of that image
+        //return new map
+    });
     //for ever value in mosaic_map
     //take original image, convert it to the color of that tile and replace it
     //merge all new images in mosaic_tiles into single image and send back accross the wire
@@ -185,11 +205,10 @@ class Mosaic {
         mysql_query('INSERT INTO thumbnails (red, green, blue, filename) VALUES ('.implode(',', $info).')', $this->db);
       }
     */
-      
-    
   }
 
   load_thumbs(){
+    
     /*
       1) Grab all of the thumbnails from Parse
       2) push them into this.thumbs with their rgb values
