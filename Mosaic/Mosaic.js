@@ -206,7 +206,46 @@ class Mosaic {
 
         // ulimit!!!!!!
 
-        for (let mosaic of self.mosaic_map){
+        let i = 0;
+        let chunkSize = 50; // 100 was too many. Choked every time at 80 or 81.
+        (function loop(i){
+
+          let mosaic = self.mosaic_map[i][0];
+          let mosaicRGB = self.mosaic_map[i][1];
+          let red = mosaicRGB[0];
+          let green = mosaicRGB[1];
+          let blue = mosaicRGB[2];
+
+          try {
+
+            im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '80%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic.toString()],function(err,data){
+              
+              if (err){console.log('something went wrong in generating colored tiles')}
+  
+                count ++;
+                console.log('count',count);
+                if (count == self.mosaic_map.length-1) {
+                  console.log('Done generating colored tiles');
+                  self.merge_colored_tiles();
+                }
+                
+            });
+
+          } catch (e) {
+            console.log('Error while changing color of mosaic tile', e);
+          }
+          
+          i++;
+          if(i == self.mosaic_map.length) return; // we're done.
+          if(i%chunkSize == 0){
+            setTimeout(function(){ loop(i); }, 50);
+          } else {
+            loop(i);
+          }
+        })(0);
+
+
+        /*for (let mosaic of self.mosaic_map){
           
           let rgbVal = mosaic[1]; //array holding red green and blue value
 
@@ -235,11 +274,13 @@ class Mosaic {
                 });
 
               } catch (e) {
+
                 console.log('Error while changing color of tile', e);
+
               }
             }
           }
-        }
+        }*/
 
       });
     } catch (e) {
