@@ -7,6 +7,7 @@ let fs = require('fs');
 let http = require('http');                                              
 let  Stream = require('stream').Transform;
 let sm = require('simple-imagemagick');
+let exec = require("child_process").execFile;
 
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
@@ -54,8 +55,8 @@ class Mosaic {
             });                                                                         
 
             response.on('end', function() {                                             
+              try {
               fs.writeFileSync('../mosaic.jpg', data.read());  
-
               //get main image stats
                 gm('mosaic.jpg')
                 .size(function (err, size) {
@@ -102,57 +103,35 @@ class Mosaic {
                     console.log('error finding size', err); 
                     throw err;
                   }
-                });                           
+                });
+              } catch (e) {
+                console.log("Error while getting image stats", e);
+
+              } 
+
             });                                                                         
           }).end();
          
         },
         error: function(object, error) {
-          // The object was not retrieved successfully.
-          // error is a Parse.Error with an error code and message.
+
           console.log('error',error)
         }
       });
 
-    
-   
-    //3) genthumbs
-
-    //4 load thumbs
-    
   }
 
   gen_mosaic_map() {
     let mosaicTilesDir = './mosaic_tiles/';
     let self = this;
     let loopcount = 0;
-    function getMosaicTiles() {
-      //create array with [image-name.jpg,avgrgb value]
-
+    //batch convert everything in mosaic tiles to rgb
+    try {
       fs.readdir(mosaicTilesDir,function(err,mosaicImages){
 
         let count = 0;
-        var intervalObject = setInterval(function () { 
-                count++; 
-                console.log(count, 'seconds passed'); 
-                
-                if ((mosaicImages.length - 1) >= (self.rows * self.rows)) { 
-
-                    console.log('exiting'); 
-                    console.log('data',mosaicImages.length);
-                    clearInterval(intervalObject); 
-                    moveOn()
-                } else {
-                  loopcount ++;
-                  console.log('here we go again',loopcount);
-                  clearInterval(intervalObject);
-                  getMosaicTiles();
-                }
-            }, 1000);
-
         if (err) {console.log('Error while generating mosaic map',err)}
 
-        function moveOn() {
           let counter = 0;
            for (let image in mosaicImages) {
              self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image,mosaicImages.length,counter,function(){
@@ -164,67 +143,77 @@ class Mosaic {
                }
              })]);
            } 
-        }
+      
 
       });
-    }
-
-    getMosaicTiles()
+    } catch (e) {
+      console.log('Error while generating mosaic_map', e);
+    }  
 
   }
 
   gen_avg_rgb (image,mapIndex,count,counter,callback){
     
     let self = this;
-    
-    gm('./mosaic_tiles/' + image).scale(1,1).write('mosaic_tiles/'+ image.toString() + '.txt',function(){
-      fs.readFile('mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
-        if (data) {
-          let tempArray = data.split(/\(([^)]+)\)/);
-          let rgbString = tempArray[1].split(',');
-          self.mosaic_map[mapIndex][1] = rgbString;
+    try {
+      gm('./mosaic_tiles/' + image).scale(1,1).write('mosaic_tiles/'+ image.toString() + '.txt',function(){
+        fs.readFile('mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
+          if (data) {
+            let tempArray = data.split(/\(([^)]+)\)/);
+            let rgbString = tempArray[1].split(',');
+            self.mosaic_map[mapIndex][1] = rgbString;
+            
+            callback();
+            
+          }
           
-          callback();
-          
-        }
-        
+        });
       });
-    });
+    } catch(e) {
+      console.log('Error while generating avg rgb', e);
+    }
   }
 
   gen_initial_mosaic() {
     console.log('genearting intial mosaic....')
     let self = this;
-
-    gm('mosaic.jpg').resize(this.cell.width,this.cell.height).write('mosaic_tile.jpg',function(){
-      //for each image in the mosaic map
-      let count = 0;
-      for (let mosaic of self.mosaic_map){
-        let rgbVal = mosaic[1];
-        console.log('RGB', mosaic);
-        if (rgbVal) {
-          if (rgbVal.length >=3){
-            let red = rgbVal[0].toString();
-            let green = rgbVal[1].toString();
-            let blue = rgbVal[2].toString();
-            
-            // convert -fill blue -colorize 50% mosaic_tile.jpg mosaic_tile_colored.jpg
-            im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '90%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic[0].toString()],function(err,data){
-              if (err){console.log('something went wrong in generating colored tiles')}
-                //console.log('finished generating colored tiles')
-                count ++;
-                console.log('count',count);
-                if (count == self.mosaic_map.length-1) {
-                  self.merge_colored_tiles();
-                }
-                
-            });
+    try {
+      gm('mosaic.jpg').resize(this.cell.width,this.cell.height).write('mosaic_tile.jpg',function(){
+        //for each image in the mosaic map
+        let count = 0;
+        for (let mosaic of self.mosaic_map){
+          let rgbVal = mosaic[1];
+          console.log('RGB', mosaic);
+          if (rgbVal) {
+            if (rgbVal.length >=3){
+              let red = rgbVal[0].toString();
+              let green = rgbVal[1].toString();
+              let blue = rgbVal[2].toString();
+              
+              // convert -fill blue -colorize 50% mosaic_tile.jpg mosaic_tile_colored.jpg
+              try {
+                im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '90%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic[0].toString()],function(err,data){
+                  if (err){console.log('something went wrong in generating colored tiles')}
+                    //console.log('finished generating colored tiles')
+                    count ++;
+                    console.log('count',count);
+                    if (count == self.mosaic_map.length-1) {
+                      self.merge_colored_tiles();
+                    }
+                    
+                });
+              } catch (e) {
+                console.log('Error while changing color of tile', e);
+              }
+            }
           }
         }
-      }
-        //take mosaic_tile and convert it to the avg rgb of that image
-        //return new map
-    });
+          //take mosaic_tile and convert it to the avg rgb of that image
+          //return new map
+      });
+    } catch (e) {
+      console.log("Error while resizing main mosaic image",e);
+    }
     //for ever value in mosaic_map
     //take original image, convert it to the color of that tile and replace it
     //merge all new images in mosaic_tiles into single image and send back accross the wire
@@ -259,13 +248,40 @@ class Mosaic {
   }
 
   gen_thumbs() {
-    /*
-    1) Load thumbnails from Parse
-      let images = thumbnails from Parse as JPEG's
-      for (let image of images) {
-        //resample image 
-        imagecopyresampled($thumb, $img, 0, 0, 0, 0, $this->cell['width'], $this->cell['height'], imagesx($img), imagesy($img));
-        let info = this.get_avg_color(image);
+   
+  }
+
+  load_thumbs(){
+    
+  }
+
+  generate() {
+    
+  }
+
+}
+
+function naturalSorter(as, bs){
+    var a, b, a1, b1, i= 0, n, L,
+    rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
+    if(as=== bs) return 0;
+    a= as.toLowerCase().match(rx);
+    b= bs.toLowerCase().match(rx);
+    L= a.length;
+    while(i<L){
+        if(!b[i]) return 1;
+        a1= a[i],
+        b1= b[i++];
+        if(a1!== b1){
+            n= a1-b1;
+            if(!isNaN(n)) return n;
+            return a1>b1? 1:-1;
+        }
+    }
+    return b[i]? -1:0;
+}
+
+module.exports = Mosaic; info = this.get_avg_color(image);
         //store avg rgb in Parse
         mysql_query('INSERT INTO thumbnails (red, green, blue, filename) VALUES ('.implode(',', $info).')', $this->db);
       }
