@@ -84,7 +84,6 @@ class Mosaic {
                     console.log('width',self.cell.width);
                     console.log('height',self.cell.height);
 
-
                     //convert into grid - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
                     im.convert(['mosaic.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'mosaic_tiles/mosaic.jpg'], function(err,data) {
                         if(err) { throw err; }
@@ -126,26 +125,45 @@ class Mosaic {
     let self = this;
     let loopcount = 0;
     //batch convert everything in mosaic tiles to rgb
+    
     try {
       fs.readdir(mosaicTilesDir,function(err,mosaicImages){
-
+        
         let count = 0;
         if (err) {console.log('Error while generating mosaic map',err)}
 
-          let counter = 0;
-           for (let image in mosaicImages) {
-             self.mosaic_map.push([mosaicImages[image],self.gen_avg_rgb(mosaicImages[image],image,mosaicImages.length,counter,function(){
-               counter++;
+        //call gen_avg_rb recursively to simulate synchronosity
+        //https://github.com/aheckmann/gm/issues/42
+        let counter = 0;
+        let i = 0;
+        let chunkSize = 50; // 100 was too many. Choked every time at 80 or 81.
+        (function loop(i){
 
-               if (counter == mosaicImages.length-1){
-                  console.log('free',self.mosaic_map);
-                  self.gen_initial_mosaic();
-               }
-             })]);
-           } 
-      
+          var filename = mosaicImages[i];
+          
+          self.mosaic_map.push(mosaicImages[i],[]);
+          self.gen_avg_rgb(mosaicImages[i],i,mosaicImages.length,counter,function(){
+             //console.log('i',i);
+             counter++;
+             if (counter == mosaicImages.length-1){
+                //console.log('free',self.mosaic_map);
+                console.log('done')
+                //console.log('mosaic',self.mosaic_map);
+                //self.gen_initial_mosaic();
+             }
+           })
+          
+          i++;
+          if(i == mosaicImages.length) return; // we're done.
+          if(i%chunkSize == 0){
+            setTimeout(function(){ loop(i); }, 50);
+          } else {
+            loop(i);
+          }
+        })(0);
 
       });
+
     } catch (e) {
       console.log('Error while generating mosaic_map', e);
     }  
@@ -156,13 +174,14 @@ class Mosaic {
     
     let self = this;
     try {
-      gm('./mosaic_tiles/' + image).scale(1,1).write('mosaic_tiles/'+ image.toString() + '.txt',function(){
+      
+      gm('./mosaic_tiles/' + image).options({imageMagick:true}).scale(1,1).write('mosaic_tiles/'+ image.toString() + '.txt',function(){
         fs.readFile('mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
           if (data) {
             let tempArray = data.split(/\(([^)]+)\)/);
             let rgbString = tempArray[1].split(',');
             self.mosaic_map[mapIndex][1] = rgbString;
-            
+            console.log('rgb String',mapIndex, rgbString)
             callback();
             
           }
@@ -174,7 +193,7 @@ class Mosaic {
     }
   }
 
-  gen_initial_mosaic() {
+  /*gen_initial_mosaic() {
     console.log('genearting intial mosaic....')
     let self = this;
     try {
@@ -192,7 +211,7 @@ class Mosaic {
               
               // convert -fill blue -colorize 50% mosaic_tile.jpg mosaic_tile_colored.jpg
               try {
-                im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '90%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic[0].toString()],function(err,data){
+                im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '80%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic[0].toString()],function(err,data){
                   if (err){console.log('something went wrong in generating colored tiles')}
                     //console.log('finished generating colored tiles')
                     count ++;
@@ -217,9 +236,9 @@ class Mosaic {
     //for ever value in mosaic_map
     //take original image, convert it to the color of that tile and replace it
     //merge all new images in mosaic_tiles into single image and send back accross the wire
-  }
+  }*/
 
-  merge_colored_tiles() {
+  /*merge_colored_tiles() {
     let self = this;
     
     console.log('merging colored tiles')
@@ -245,63 +264,13 @@ class Mosaic {
       console.log('hey there');
     });
     
-  }
+  }*/
 
-  gen_thumbs() {
-   
-  }
-
-  load_thumbs(){
-    
-  }
-
-  generate() {
-    
-  }
 
 }
 
-function naturalSorter(as, bs){
-    var a, b, a1, b1, i= 0, n, L,
-    rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
-    if(as=== bs) return 0;
-    a= as.toLowerCase().match(rx);
-    b= bs.toLowerCase().match(rx);
-    L= a.length;
-    while(i<L){
-        if(!b[i]) return 1;
-        a1= a[i],
-        b1= b[i++];
-        if(a1!== b1){
-            n= a1-b1;
-            if(!isNaN(n)) return n;
-            return a1>b1? 1:-1;
-        }
-    }
-    return b[i]? -1:0;
-}
 
-module.exports = Mosaic; info = this.get_avg_color(image);
-        //store avg rgb in Parse
-        mysql_query('INSERT INTO thumbnails (red, green, blue, filename) VALUES ('.implode(',', $info).')', $this->db);
-      }
-    */
-  }
 
-  load_thumbs(){
-    
-    /*
-      1) Grab all of the thumbnails from Parse
-      2) push them into this.thumbs with their rgb values
-
-    */
-  }
-
-  generate() {
-    
-  }
-
-}
 
 function naturalSorter(as, bs){
     var a, b, a1, b1, i= 0, n, L,
