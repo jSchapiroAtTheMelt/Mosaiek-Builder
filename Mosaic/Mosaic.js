@@ -141,14 +141,16 @@ class Mosaic {
 
           var filename = mosaicImages[i];
           
-          self.mosaic_map.push(mosaicImages[i],[]);
-          self.gen_avg_rgb(mosaicImages[i],i,mosaicImages.length,counter,function(){
+          //self.mosaic_map.push(mosaicImages[i],[]);
+          self.gen_avg_rgb(mosaicImages[i],i,mosaicImages.length,counter,function(rgbString,index,image){
              //console.log('i',i);
+             console.log('help',self.mosaic_map[index],rgbString)
+             self.mosaic_map.push([image,rgbString])
              counter++;
              if (counter == mosaicImages.length-1){
                 //console.log('free',self.mosaic_map);
                 console.log('done')
-                //console.log('mosaic',self.mosaic_map);
+                console.log('mosaic',self.mosaic_map);
                 //self.gen_initial_mosaic();
              }
            })
@@ -180,9 +182,9 @@ class Mosaic {
           if (data) {
             let tempArray = data.split(/\(([^)]+)\)/);
             let rgbString = tempArray[1].split(',');
-            self.mosaic_map[mapIndex][1] = rgbString;
-            console.log('rgb String',mapIndex, rgbString)
-            callback();
+            //self.mosaic_map[mapIndex][1] = rgbString;
+            //console.log('rgb String',mapIndex, rgbString)
+            callback(rgbString,mapIndex,image);
             
           }
           
