@@ -152,7 +152,7 @@ class Mosaic {
              if (counter == mosaicImages.length-1){
                 
                 console.log('done finding average rgb value for each mosaict tile')
-                //self.gen_initial_mosaic();
+                self.gen_initial_mosaic();
              }
            })
           
@@ -181,8 +181,8 @@ class Mosaic {
         fs.readFile('mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
           if (data) {
             let tempArray = data.split(/\(([^)]+)\)/);
-            let rgbString = tempArray[1].split(',');
-            
+            let rgbString = tempArray[3].split(',');
+            console.log('tempArray',rgbString)
             callback(rgbString,mapIndex,image);
             
           }
@@ -215,15 +215,24 @@ class Mosaic {
           let red = mosaicRGB[0];
           let green = mosaicRGB[1];
           let blue = mosaicRGB[2];
+          console.log('rgb', red,green,blue );
 
           try {
-
-            im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '80%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic.toString()],function(err,data){
+            /*gm('mosaic_tile.jpg').fill(red +',' + green +',' + blue).write('mosaic_tiles_converted/'+mosaic.toString(),function(err,data){
+              if (err){console.log('error coloring new tiles', err)}
+              count ++;
+              if (count == self.mosaic_map.length-1) {
+                console.log('Done generating colored tiles');
+                self.merge_colored_tiles();
+              }
+              
+            });*/
+            im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '60%', 'mosaic_tile.jpg', 'mosaic_tiles_converted/'+mosaic.toString()],function(err,data){
               
               if (err){console.log('something went wrong in generating colored tiles')}
   
                 count ++;
-                console.log('count',count);
+                
                 if (count == self.mosaic_map.length-1) {
                   console.log('Done generating colored tiles');
                   self.merge_colored_tiles();
