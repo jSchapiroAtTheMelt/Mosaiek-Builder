@@ -13,14 +13,14 @@ module.exports = (app) => {
   app.use(morgan('dev'));
   
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
-    
+    console.log(req.body)
     res.send('new mosaic received');
   
   })
 
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
-    
+    console.log(req.body)
     //new Mosaic('UI3wo4OfJ3',40,40,true);
 
     res.send('new contribution made');
