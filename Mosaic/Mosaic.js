@@ -15,7 +15,7 @@ Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJev
 
 class Mosaic {
 
-  constructor(input_filename,rows,columns,gen_thumbs) {
+  constructor(input_filename,rows,columns,gen_thumbs,isContribution) {
     //private vars
     this.input = {}; //main image
     this.cell = {};
@@ -23,6 +23,7 @@ class Mosaic {
     this.matrix = [];
     this.output;
     this.mosaic_map = [];
+    this.isContribution = isContribution;
     
     //public vars
     this.input_filename = input_filename;
@@ -35,6 +36,7 @@ class Mosaic {
   }
 
   should_prepare() {
+    
     let self = this;
 
     client.get(this.input_filename+'_dimens', function (err, cell_dimens) {
