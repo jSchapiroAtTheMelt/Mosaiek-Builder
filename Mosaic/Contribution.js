@@ -7,11 +7,14 @@ class Contribution() {
   //update db
 
   get_mosaic_map(){
-
+    //read map from redis -> json parse -> store as instance property
+    //make http request to get image data
+    //resize image to mosaic maps cell size
+    //write to file system
   }
 
   match_avg_rgb(){
-
+    //loop through each value in mosaic map and pass to is a match
   }
 
   is_a_match(contributionRGB,tileRGB){
@@ -23,6 +26,6 @@ class Contribution() {
   }
 
   update_db(){
-    
+
   }
 }

@@ -8,13 +8,15 @@ let http = require('http');
 let  Stream = require('stream').Transform;
 let sm = require('simple-imagemagick');
 let exec = require("child_process").execFile;
-
+let remove = require('remove');
+let client;
 
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
 class Mosaic {
 
-  constructor(input_filename,rows,columns,gen_thumbs,isContribution,doneCallback) {
+
+  constructor(input_filename,rows,columns,gen_thumbs,isContribution) {
     //private vars
     this.input = {}; //main image
     this.cell = {};
@@ -31,8 +33,6 @@ class Mosaic {
     this.gen_thumbs = gen_thumbs;
     this.hasMosaicMap = false;
 
-    this.doneCallback = doneCallback;
-
     this.should_prepare();
   }
 
@@ -40,7 +40,7 @@ class Mosaic {
     
     let self = this;
 
-    let client;
+    
 
     if (process.env.REDISTOGO_URL) {
         
@@ -55,7 +55,7 @@ class Mosaic {
         console.log('here')
     }
 
-    client.get(this.input_filename+'_dimens', function (err, cell_dimens) {
+    client.get(this.input_filename+'_width_height', function (err, cell_dimens) {
         
         if (cell_dimens.length > 0) {
           let dimens = JSON.parse(cell_dimens);
@@ -63,7 +63,7 @@ class Mosaic {
           console.log('height',dimens[1]);
           self.hasMosaicMap = true;
           
-          self.doneCallback.call(self);
+          
 
         } else {
           
@@ -195,7 +195,13 @@ class Mosaic {
                 client.set(self.input_filename,JSON.stringify(self.mosaic_map)); // Store Mosaic Map in Redis
                 client.set(self.input_filename+'_dimens',JSON.stringify([self.cell.width,self.cell.height]));
                 client.set(self.input_filename + '_width_height',JSON.stringify([self.input.width,self.input.height]));
-                //self.gen_initial_mosaic();
+                
+                //remove all files in /mosaic_tiles
+                remove('./mosaic_tiles/',function(){ //removes entire directory
+                  fs.mkdirSync('./mosaic_tiles'); //replaces it but empty
+                })
+                
+                //self.gen_initial_mosaic(); saving this for a rainy day
              }
            })
           
