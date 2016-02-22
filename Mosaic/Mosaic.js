@@ -29,18 +29,25 @@ class Mosaic {
     this.rows = rows;
     this.columns = columns;
     this.gen_thumbs = gen_thumbs;
+    this.hasMosaicMap = false;
 
+    this.should_prepare();
+  }
 
-    client.get(this.input_filename, function (err, reply) {
-        if (reply.length > 0) {
-          console.log('mosaic map exists')
-          return;
+  should_prepare() {
+    let self = this;
+
+    client.get(this.input_filename+'_dimens', function (err, cell_dimens) {
+        if (cell_dimens.length > 0) {
+          let dimens = JSON.parse(cell_dimens);
+          console.log('width',dimens[0]);
+          console.log('height',dimens[1]);
+          self.hasMosaicMap = true;
+          //self.prepare()
         } else {
-          this.prepare();
+          //self.prepare();
         }
     });
-
-
   }
 
   prepare() {
@@ -103,7 +110,7 @@ class Mosaic {
                     //convert into grid - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
                     im.convert(['mosaic.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'mosaic_tiles/mosaic.jpg'], function(err,data) {
                         if(err) { throw err; }
-                        //self.gen_mosaic_map();
+                        self.gen_mosaic_map();
                           
                     });
                     
@@ -164,6 +171,7 @@ class Mosaic {
                 
                 console.log('done finding average rgb value for each mosaict tile')
                 client.set(self.input_filename,JSON.stringify(self.mosaic_map)); // Store Mosaic Map in Redis
+                client.set(self.input_filename+'_dimens',JSON.stringify([self.cell.width,self.cell.height]));
                 self.gen_initial_mosaic();
              }
            })
