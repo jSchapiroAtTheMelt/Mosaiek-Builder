@@ -37,6 +37,7 @@
     "morgan": "^1.6.1",
     "parse": "^1.7.0",
     "parse-cloud-express": "^1.1.1",
+    "redis": "^2.4.2",
     "simple-imagemagick": "^0.2.2"
   },
   "pre-commit": [
