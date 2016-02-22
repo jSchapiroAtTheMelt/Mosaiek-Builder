@@ -14,7 +14,7 @@ Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJev
 
 class Mosaic {
 
-  constructor(input_filename,rows,columns,gen_thumbs,isContribution) {
+  constructor(input_filename,rows,columns,gen_thumbs,isContribution,doneCallback) {
     //private vars
     this.input = {}; //main image
     this.cell = {};
@@ -31,6 +31,8 @@ class Mosaic {
     this.gen_thumbs = gen_thumbs;
     this.hasMosaicMap = false;
 
+    this.doneCallback = doneCallback;
+
     this.should_prepare();
   }
 
@@ -38,26 +40,34 @@ class Mosaic {
     
     let self = this;
 
+    let client;
+
     if (process.env.REDISTOGO_URL) {
+        
         let rtg   = require("url").parse(process.env.REDISTOGO_URL);
-        let client = require("redis").createClient(rtg.port, rtg.hostname);
+         client = require("redis").createClient(rtg.port, rtg.hostname);
 
         client.auth(rtg.auth.split(":")[1]);
 
     } else {
-      
-        let client = require("redis").createClient();
+
+         client = require("redis").createClient();
+        console.log('here')
     }
 
     client.get(this.input_filename+'_dimens', function (err, cell_dimens) {
+        
         if (cell_dimens.length > 0) {
           let dimens = JSON.parse(cell_dimens);
           console.log('width',dimens[0]);
           console.log('height',dimens[1]);
           self.hasMosaicMap = true;
-          //self.prepare()
+          
+          self.doneCallback.call(self);
+
         } else {
-          //self.prepare();
+          
+          self.prepare();
         }
     });
   }
@@ -184,7 +194,8 @@ class Mosaic {
                 console.log('done finding average rgb value for each mosaict tile')
                 client.set(self.input_filename,JSON.stringify(self.mosaic_map)); // Store Mosaic Map in Redis
                 client.set(self.input_filename+'_dimens',JSON.stringify([self.cell.width,self.cell.height]));
-                self.gen_initial_mosaic();
+                client.set(self.input_filename + '_width_height',JSON.stringify([self.input.width,self.input.height]));
+                //self.gen_initial_mosaic();
              }
            })
           

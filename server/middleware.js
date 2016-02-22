@@ -14,14 +14,29 @@ module.exports = (app) => {
   
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
     console.log(req.body)
-    res.send('new mosaic received');
+    new Mosaic('UI3wo4OfJ3',40,40,true,function(success){
+      if (success) {
+
+        res.send('new contribution made')
+      } else {
+        res.send('unable to make new contribution')
+      }
+    });
+    
   
   })
 
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
     console.log(req.body)
-    //new Mosaic('UI3wo4OfJ3',40,40,true);
+    /*new Mosaic('UI3wo4OfJ3',40,40,true,function(success){
+      if (success) {
+
+        res.send('new contribution made')
+      } else {
+        res.send('unable to make new contribution')
+      }
+    });*/
 
     res.send('new contribution made');
   });
