@@ -9,7 +9,7 @@ let  Stream = require('stream').Transform;
 let sm = require('simple-imagemagick');
 let exec = require("child_process").execFile;
 let redis = require("redis");
-let client = redis.createClient({detect_buffers: true});
+let client = require('redis').createClient(process.env.REDIS_URL);
 
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
