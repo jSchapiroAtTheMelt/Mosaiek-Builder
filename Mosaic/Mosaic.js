@@ -8,8 +8,7 @@ let http = require('http');
 let  Stream = require('stream').Transform;
 let sm = require('simple-imagemagick');
 let exec = require("child_process").execFile;
-let redis = require("redis");
-let client = require('redis').createClient(process.env.REDIS_URL);
+
 
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
@@ -38,6 +37,17 @@ class Mosaic {
   should_prepare() {
     
     let self = this;
+
+    if (process.env.REDISTOGO_URL) {
+        let rtg   = require("url").parse(process.env.REDISTOGO_URL);
+        let client = require("redis").createClient(rtg.port, rtg.hostname);
+
+        client.auth(rtg.auth.split(":")[1]);
+
+    } else {
+      
+        let client = require("redis").createClient();
+    }
 
     client.get(this.input_filename+'_dimens', function (err, cell_dimens) {
         if (cell_dimens.length > 0) {
