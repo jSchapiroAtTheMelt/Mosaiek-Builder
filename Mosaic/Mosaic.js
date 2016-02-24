@@ -8,6 +8,7 @@ let http = require('http');
 let  Stream = require('stream').Transform;
 let sm = require('simple-imagemagick');
 let exec = require("child_process").execFile;
+let mkdirp = require('mkdirp');
 let remove = require('remove');
 let client;
 
@@ -87,50 +88,55 @@ class Mosaic {
                 // read main mosaic image from file system.
                 fs.writeFileSync('temp/'+ self.input_filename +'.jpg', data.read());  
                 
+                mkdirp('/tmp/mosaic_tiles', function(err) { 
+                  gm('temp/'+self.input_filename+'.jpg')
+                  .size(function (err, size) {
+                    
+                    if (!err) {
+
+                      console.log('width = ' + size.width);
+                      console.log('height = ' + size.height);
+                      self.input.width = size.width;
+                      self.input.height = size.height;
+
+                      
+                      if (self.input.width % self.columns){
+                        console.log('width not a multiple of columns')
+                      }
+
+                      if (self.input.height % self.rows){
+                        console.log('height not a multiple of rows')
+                      }
+
+                      //set the dimensions of a main mosaic cell
+                      self.cell.width = self.input.width / self.columns;
+                      self.cell.height = self.input.height / self.rows;
+                      
+                      console.log('width',self.cell.width);
+                      console.log('height',self.cell.height);
+
+                      //convert into grid - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
+                      im.convert(['temp/'+self.input_filename+'.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'temp/mosaic_tiles/mosaic.jpg'], function(err,data) {
+                          if(err) { throw err; }
+                          self.gen_mosaic_map();
+                            
+                      });
+                      
+                      // store in redis - key = mosaic , value = grid of images
+                      console.log('done')
+
+                    } else {
+
+                      console.log('Error finding size of mosaic and converting into tiles: ', err); 
+                      throw err;
+                    }
+                  });
+                    // path was created unless there was error
+                    console.log('race against the clock')
+                });
                 //get main image stats
                 console.log('Gathering statistics about main mosaic image...');
-                gm('temp/'+self.input_filename+'.jpg')
-                .size(function (err, size) {
-                  
-                  if (!err) {
-
-                    console.log('width = ' + size.width);
-                    console.log('height = ' + size.height);
-                    self.input.width = size.width;
-                    self.input.height = size.height;
-
-                    
-                    if (self.input.width % self.columns){
-                      console.log('width not a multiple of columns')
-                    }
-
-                    if (self.input.height % self.rows){
-                      console.log('height not a multiple of rows')
-                    }
-
-                    //set the dimensions of a main mosaic cell
-                    self.cell.width = self.input.width / self.columns;
-                    self.cell.height = self.input.height / self.rows;
-                    
-                    console.log('width',self.cell.width);
-                    console.log('height',self.cell.height);
-
-                    //convert into grid - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
-                    im.convert(['temp/'+self.input_filename+'.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'temp/mosaic_tiles/mosaic.jpg'], function(err,data) {
-                        if(err) { throw err; }
-                        self.gen_mosaic_map();
-                          
-                    });
-                    
-                    // store in redis - key = mosaic , value = grid of images
-                    console.log('done')
-
-                  } else {
-
-                    console.log('Error finding size of mosaic and converting into tiles: ', err); 
-                    throw err;
-                  }
-                });
+                
               } catch (e) {
 
                 console.log("Error while getting image stats", e);
