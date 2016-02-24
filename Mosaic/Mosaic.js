@@ -33,7 +33,7 @@ class Mosaic {
     this.columns = columns;
     this.gen_thumbs = gen_thumbs;
     this.hasMosaicMap = false;
-
+    this.callback = callback;
    
     this.should_prepare();
   }
@@ -127,7 +127,7 @@ class Mosaic {
                       console.log('done')
 
                     } else {
-                      callback(err,null);
+                      self.callback(err,null);
                       console.log('Error finding size of mosaic and converting into tiles: ', err); 
                       throw err;
                     }
@@ -139,7 +139,7 @@ class Mosaic {
                 console.log('Gathering statistics about main mosaic image...');
                 
               } catch (e) {
-                callback(e,null);
+                self.callback(e,null);
                 console.log("Error while getting image stats", e);
 
               } 
@@ -150,7 +150,7 @@ class Mosaic {
         },
 
         error: function(object, error) {
-          callback(error,null);
+          self.callback(error,null);
           console.log('error',error)
         }
       });
@@ -170,7 +170,7 @@ class Mosaic {
         
         let count = 0;
         if (err) {
-          callback(err,null);
+          self.callback(err,null);
           console.log('Error while reading mosaic tiles from  temp/mosaic_tiles',err)
         }
 
@@ -198,7 +198,7 @@ class Mosaic {
                   console.log('clearing out temp directory')
                   fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty
                 })
-                callback(null,self.mosaic_map)
+                self.callback(null,self.mosaic_map)
                 //self.gen_initial_mosaic(); saving this for a rainy day
              }
            })
