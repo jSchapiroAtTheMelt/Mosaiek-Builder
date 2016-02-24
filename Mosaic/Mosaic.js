@@ -17,7 +17,7 @@ Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJev
 class Mosaic {
 
 
-  constructor(input_filename,rows,columns,gen_thumbs,isContribution) {
+  constructor(input_filename,rows,columns,gen_thumbs,callback) {
     //private vars
     this.input = {}; //main image
     this.cell = {};
@@ -25,7 +25,7 @@ class Mosaic {
     this.matrix = [];
     this.output;
     this.mosaic_map = [];
-    this.isContribution = isContribution;
+    
     
     //public vars
     this.input_filename = input_filename;
@@ -34,6 +34,7 @@ class Mosaic {
     this.gen_thumbs = gen_thumbs;
     this.hasMosaicMap = false;
 
+   
     this.should_prepare();
   }
 
@@ -126,7 +127,7 @@ class Mosaic {
                       console.log('done')
 
                     } else {
-
+                      callback(err,null);
                       console.log('Error finding size of mosaic and converting into tiles: ', err); 
                       throw err;
                     }
@@ -138,7 +139,7 @@ class Mosaic {
                 console.log('Gathering statistics about main mosaic image...');
                 
               } catch (e) {
-
+                callback(e,null);
                 console.log("Error while getting image stats", e);
 
               } 
@@ -149,7 +150,7 @@ class Mosaic {
         },
 
         error: function(object, error) {
-
+          callback(error,null);
           console.log('error',error)
         }
       });
@@ -168,7 +169,10 @@ class Mosaic {
       fs.readdir(mosaicTilesDir,function(err,mosaicImages){
         
         let count = 0;
-        if (err) {console.log('Error while reading mosaic tiles from  temp/mosaic_tiles',err)}
+        if (err) {
+          callback(err,null);
+          console.log('Error while reading mosaic tiles from  temp/mosaic_tiles',err)
+        }
 
         //get average rgb value of each mosaic tile and store in mosaic_map
         //https://github.com/aheckmann/gm/issues/42
@@ -194,7 +198,7 @@ class Mosaic {
                   console.log('clearing out temp directory')
                   fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty
                 })
-                
+                callback(null,self.mosaic_map)
                 //self.gen_initial_mosaic(); saving this for a rainy day
              }
            })

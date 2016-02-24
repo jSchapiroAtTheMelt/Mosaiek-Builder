@@ -17,11 +17,12 @@ module.exports = (app) => {
     let mosaicId = req.body.object.objectId 
    
     if (mosaicId) {
-      new Mosaic(mosaicId,20,20,true,function(success){
-        if (success) {
-
-          res.send('new contribution made')
+      new Mosaic(mosaicId,20,20,true,function(err,mosaic_map){
+        if (mosaic_map) {
+          res.status(200);
+          res.send('new mosaic map made')
         } else {
+          res.status(400)
           res.send('unable to make new contribution')
         }
       });
