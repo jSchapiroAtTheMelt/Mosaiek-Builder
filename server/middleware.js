@@ -13,15 +13,23 @@ module.exports = (app) => {
   app.use(morgan('dev'));
   
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
-    console.log(req.body.object.image)
-    new Mosaic('UI3wo4OfJ3',40,40,true,function(success){
-      if (success) {
+    console.log("Retrieving mosaic_map for",req.body.object.objectId)
+    let mosaicId = req.body.object.objectId 
+   
+    if (mosaicId) {
+      new Mosaic(mosaicId,20,20,true,function(success){
+        if (success) {
 
-        res.send('new contribution made')
-      } else {
-        res.send('unable to make new contribution')
-      }
-    });
+          res.send('new contribution made')
+        } else {
+          res.send('unable to make new contribution')
+        }
+      });
+    } else {
+      res.status(400);
+      res.send('unable to make new mosaic');
+    }
+   
     
   
   })
