@@ -40,18 +40,17 @@ class Mosaic {
     
     let self = this;
 
-    
 
     if (process.env.REDISTOGO_URL) {
         
         let rtg   = require("url").parse(process.env.REDISTOGO_URL);
-         client = require("redis").createClient(rtg.port, rtg.hostname);
+        client = require("redis").createClient(rtg.port, rtg.hostname);
 
         client.auth(rtg.auth.split(":")[1]);
 
     } else {
 
-         client = require("redis").createClient();
+        client = require("redis").createClient();
         console.log('here')
     }
 
