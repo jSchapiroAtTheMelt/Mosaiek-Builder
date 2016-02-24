@@ -40,6 +40,20 @@ class Mosaic {
     
     let self = this;
 
+    //initialize redis
+    if (process.env.REDISTOGO_URL) {
+        
+        let rtg   = require("url").parse(process.env.REDISTOGO_URL);
+        client = require("redis").createClient(rtg.port, rtg.hostname);
+
+        client.auth(rtg.auth.split(":")[1]);
+
+    } else {
+
+        client = require("redis").createClient();
+        console.log('here')
+    }
+
     self.prepare();
         
   }
@@ -71,11 +85,11 @@ class Mosaic {
             response.on('end', function() {                                             
               try {
                 // read main mosaic image from file system.
-                fs.writeFileSync('../mosaic.jpg', data.read());  
+                fs.writeFileSync('temp/'+ self.input_filename +'.jpg', data.read());  
                 
                 //get main image stats
                 console.log('Gathering statistics about main mosaic image...');
-                gm('mosaic.jpg')
+                gm('temp/'+self.input_filename+'.jpg')
                 .size(function (err, size) {
                   
                   if (!err) {
@@ -102,7 +116,7 @@ class Mosaic {
                     console.log('height',self.cell.height);
 
                     //convert into grid - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
-                    im.convert(['mosaic.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'mosaic_tiles/mosaic.jpg'], function(err,data) {
+                    im.convert(['temp/'+self.input_filename+'.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'temp/mosaic_tiles/mosaic.jpg'], function(err,data) {
                         if(err) { throw err; }
                         self.gen_mosaic_map();
                           
@@ -138,7 +152,7 @@ class Mosaic {
 
   gen_mosaic_map() {
 
-    let mosaicTilesDir = './mosaic_tiles/';
+    let mosaicTilesDir = 'temp/mosaic_tiles/';
     let self = this;
     let loopcount = 0;
     //batch convert everything in mosaic tiles to rgb
@@ -148,7 +162,7 @@ class Mosaic {
       fs.readdir(mosaicTilesDir,function(err,mosaicImages){
         
         let count = 0;
-        if (err) {console.log('Error while reading mosaic tiles from  ./mosaic_tiles',err)}
+        if (err) {console.log('Error while reading mosaic tiles from  temp/mosaic_tiles',err)}
 
         //get average rgb value of each mosaic tile and store in mosaic_map
         //https://github.com/aheckmann/gm/issues/42
@@ -169,8 +183,10 @@ class Mosaic {
                 client.set(self.input_filename + '_width_height',JSON.stringify([self.input.width,self.input.height]));
                 
                 //remove all files in /mosaic_tiles
-                remove('./mosaic_tiles/',function(){ //removes entire directory
-                  fs.mkdirSync('./mosaic_tiles'); //replaces it but empty
+
+                remove('temp/mosaic_tiles/',function(){ //removes entire directory
+                  console.log('clearing out temp directory')
+                  fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty
                 })
                 
                 //self.gen_initial_mosaic(); saving this for a rainy day
@@ -198,8 +214,8 @@ class Mosaic {
     
     let self = this;
     try {
-      gm('./mosaic_tiles/' + image).options({imageMagick:true}).scale(1,1).write('mosaic_tiles/'+ image.toString() + '.txt',function(){
-        fs.readFile('mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
+      gm('temp/mosaic_tiles/' + image).options({imageMagick:true}).scale(1,1).write('temp/mosaic_tiles/'+ image.toString() + '.txt',function(){
+        fs.readFile('temp/mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
           if (data) {
             let tempArray = data.split(/\(([^)]+)\)/);
             let rgbString = tempArray[3].split(',');
@@ -221,11 +237,9 @@ class Mosaic {
     try {
 
       //get a sample sized cell to convert to the corect rgb value
-      gm('mosaic.jpg').resize(this.cell.width,this.cell.height).write('mosaic_tile.jpg',function(){
+      gm('temp/'+self.input_filename+'.jpg').resize(this.cell.width,this.cell.height).write('temp/'+self.input_filename+'.jpg',function(){
         //for each image in the mosaic map
         let count = 0;
-
-        // ulimit!!!!!!
 
         let i = 0;
         let chunkSize = 50; // 100 was too many. Choked every time at 80 or 81.
