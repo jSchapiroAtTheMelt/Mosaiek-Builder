@@ -1,9 +1,8 @@
 'use strict';
 //https://github.com/lokesh/color-thief/
 let Parse = require('parse/node');
-//let im = require('imagemagick');
+let im = require('imagemagick');
 let gm = require('gm');
-let im = gm.subClass({ imageMagick: true });
 let fs = require('fs');
 let http = require('http');                                              
 let  Stream = require('stream').Transform;
