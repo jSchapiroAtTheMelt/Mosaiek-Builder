@@ -40,35 +40,8 @@ class Mosaic {
     
     let self = this;
 
-
-    if (process.env.REDISTOGO_URL) {
+    self.prepare();
         
-        let rtg   = require("url").parse(process.env.REDISTOGO_URL);
-        client = require("redis").createClient(rtg.port, rtg.hostname);
-
-        client.auth(rtg.auth.split(":")[1]);
-
-    } else {
-
-        client = require("redis").createClient();
-        console.log('here')
-    }
-
-    client.get(this.input_filename+'_width_height', function (err, cell_dimens) {
-        
-        if (cell_dimens !== 'undefined') {
-          let dimens = JSON.parse(cell_dimens);
-          console.log('width',dimens[0]);
-          console.log('height',dimens[1]);
-          self.hasMosaicMap = true;
-          
-          
-
-        } else {
-          
-          self.prepare();
-        }
-    });
   }
 
   prepare() {
