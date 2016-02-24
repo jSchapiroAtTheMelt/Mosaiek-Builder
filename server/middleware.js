@@ -13,7 +13,7 @@ module.exports = (app) => {
   app.use(morgan('dev'));
   
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
-    console.log(req.body)
+    console.log(req.body.object.image)
     new Mosaic('UI3wo4OfJ3',40,40,true,function(success){
       if (success) {
 

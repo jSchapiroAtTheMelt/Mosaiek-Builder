@@ -56,7 +56,7 @@ class Mosaic {
 
     client.get(this.input_filename+'_width_height', function (err, cell_dimens) {
         
-        if (cell_dimens.length > 0) {
+        if (cell_dimens !== 'undefined') {
           let dimens = JSON.parse(cell_dimens);
           console.log('width',dimens[0]);
           console.log('height',dimens[1]);
