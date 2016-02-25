@@ -73,9 +73,7 @@ class Contribution {
             self.height = dimens[1];
 
             
-            self.get_main_mosaic_image(function(err,data){
-
-            });
+            self.get_main_mosaic_image();
 
           }
         })
@@ -96,7 +94,6 @@ class Contribution {
       success: function(mosaic) {
         console.log("Main Mosaic Image Received: ", mosaic);
         
-        
         //store image locally                 
         http.request(mosaic.get('image').url(), function(response) {                                        
           let data = new Stream();                                                    
@@ -110,8 +107,15 @@ class Contribution {
               // read main mosaic image from file system.
               fs.writeFileSync('temp/'+ self.main_mosaic_filename +'.jpg', data.read());  
               
-              mkdirp('/tmp/mosaic_image', function(err) { 
-               
+              mkdirp('temp/mosaic_image', function(err) { 
+                  if (err){
+                    console.log("Error while creating temp/mosaic_image",err);
+                   
+                  } else {
+                    
+                    self.resize_mosaic_image();
+
+                  }
                   // path was created unless there was error
                   console.log('race against the clock')
               });
@@ -136,6 +140,34 @@ class Contribution {
     });
   }
 
+  resize_mosaic_image() {
+    let self = this;
+    console.log("Retrieving image from", self.contributedImageData)
+    http.request(self.contributedImageData, function(response) {                                        
+      let data = new Stream();                                                    
+
+      response.on('data', function(chunk) {                                       
+        data.push(chunk);                                                         
+      });                                                                         
+
+      response.on('end', function() {                                             
+        try {
+          // read main mosaic image from file system.
+          fs.writeFileSync('temp/mosaic_image/'+ self.contributed_filename +'.jpg', data.read());  
+          
+          
+          //get main image stats
+          console.log('done writing mosaic image to temp/mosaic_image');
+          
+        } catch (e) {
+          
+          console.log("Error while getting image stats", e);
+
+        } 
+
+      });                                                                         
+    }).end();
+  }
 
   match_avg_rgb(){
     //loop through each value in mosaic map and pass to is a match
