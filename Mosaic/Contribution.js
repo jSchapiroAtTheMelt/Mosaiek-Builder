@@ -31,6 +31,8 @@ class Contribution {
     this.rgb = rgb;  //array of rgb values
     this.width = 0;
     this.height = 0;
+
+    this.get_mosaic_map()
   }
 
   get_mosaic_map(){
