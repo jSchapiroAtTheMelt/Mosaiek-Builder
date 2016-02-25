@@ -21,13 +21,14 @@ class Contribution {
   //layer on top of mosaic
   //update db
 
-  constructor(main_mosaic_filename,contributed_filename,rgb,callback) {
-    this.main_mosaic_filename = main_mosaic_filename;
-    this.contributed_filename = contributed_filename;
-    this.mosaic_map = [];
+  constructor(main_mosaic_filename,contributed_filename,rgb,contributedImageData,callback) {
+    this.main_mosaic_filename = main_mosaic_filename; //mosaic objectId
+    this.contributed_filename = contributed_filename; //mosaicImage objectId
+    this.contributedImageData = contributedImageData; //mosaicImage thumbnail url
+    this.mosaic_map = []; // retrieved from redis
     this.mosaic_cells = 0;
     this.mosaic_rows = 0;
-    this.rgb = rgb;  
+    this.rgb = rgb;  //array of rgb values
     this.width = 0;
     this.height = 0;
   }
@@ -66,6 +67,7 @@ class Contribution {
             self.width = data[0];
             self.height = data[1];
 
+            console.log('a mosaic image should be resized to ',self.width,self.height);
             self.get_main_mosaic_image("",function(err,data){
 
             });

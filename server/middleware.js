@@ -39,12 +39,24 @@ module.exports = (app) => {
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
     console.log(req.body)
-    let mosaicID = ""
-    let contributionID = ""
-    let rgb = [];
-    /*new Contribution(mosaicID,contributionID,rgb,function(){
+    let mosaicID = req.body.object.mosaic.objectId;
+    let contributionID = req.body.object.objectId
+    let contributionImageData = req.body.object.thumbnail;
+    let red = req.body.object.red;
+    let green = req.body.object.green;
+    let blue = req.body.object.blue;
+    let rgb = [red,green,blue];
 
-    });*/
+    console.log("MOSAIC IMAGE ")
+    console.log("mosaicID: ",mosaicId);
+    console.log("contribution id: ",contributionID);
+    console.log('contribution image data',contributionImageData.url)
+    console.log("RGB: ",rgb);
+
+    if (mosaicId && contributionID && contributionImageData && rgb.length === 3){
+
+    }
+    
     
 
     res.send('new contribution made');
