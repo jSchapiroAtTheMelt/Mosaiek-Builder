@@ -161,6 +161,7 @@ class Contribution {
           console.log('Attempting to resize it...')
           gm('temp/mosaic_image/'+self.contributed_filename +'.jpg').resize(self.width,self.height).write('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(){
             console.log('finished resizing ','temp/mosaic_image/'+self.contributed_filename +'.jpg')
+            self.match_avg_rgb();
           });
           
         } catch (e) {
@@ -174,7 +175,45 @@ class Contribution {
   }
 
   match_avg_rgb(){
+    let self = this;
     //loop through each value in mosaic map and pass to is a match
+    console.log('comparing mosaic image to mosaic map',self.mosaic_map);
+    let bestMatch = '' //mosaic-tile name
+    let bestMatchDiff = -1; //diff between rgb vals
+
+    for (let tile in self.mosaic_map){
+      //current tiles rgb
+      let tileRGB = self.mosaic_map[tile][1];
+      let tileRed = parseInt(tileRGB[0]);
+      let tileGreen = parseInt(tileRGB[1]);
+      let tileBlue = parseInt(tileRGB[2]);
+
+      //mosaic image rgb
+      let imageRGB = self.rgb;
+      let imageRed = self.rgb[0];
+      let imageGreen = self.rgb[1];
+      let imageBlue = self.rgb[2];
+
+      //RGB Diffs
+      let redDiff = Math.abs(tileRed - imageRed);
+      let greenDiff = Math.abs(tileGreen - imageGreen);
+      let blueDiff = Math.abs(tileBlue - imageBlue); 
+      
+      let currentDiff = redDiff + greenDiff + blueDiff;
+      //bestMatchDiff not set
+      if (bestMatchDiff === -1) {
+        bestMatchDiff = currentDiff;
+        bestMatch = self.mosaic_map[tile][0];
+      } 
+
+      if (currentDiff < bestMatchDiff) {
+        bestMatchDiff = currentDiff;
+        bestMatch = self.mosaic_map[tile][0];
+      }
+
+    }
+    console.log('current images rgb',self.rgb)
+    console.log('Best Match Diff', bestMatch)
   }
 
   is_a_match(contributionRGB,tileRGB){
