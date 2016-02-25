@@ -92,7 +92,7 @@ class Contribution {
 
     mosaicQuery.get(this.main_mosaic_filename , {
       success: function(mosaic) {
-        console.dir("Main Mosaic Image Received: ",mosaic.get('image').name());
+        console.dir("Main Mosaic Image Received: ",mosaic);
         
         
         //store image locally                 
