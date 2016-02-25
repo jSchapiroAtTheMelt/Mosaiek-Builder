@@ -88,9 +88,9 @@ class Contribution {
     let Mosaic = Parse.Object.extend("Mosaic");
     let mosaicQuery = new Parse.Query(Mosaic);
     let self = this;
-    console.log("retrieiving main mosaic image")
+    console.log("retrieiving main mosaic image",self.main_mosaic_filename)
 
-    mosaicQuery.get(this.main_mosaic_filename , {
+    mosaicQuery.get(self.main_mosaic_filename , {
       success: function(mosaic) {
         console.dir("Main Mosaic Image Received: ",mosaic);
         

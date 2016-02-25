@@ -38,7 +38,7 @@ module.exports = (app) => {
 
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
-    console.log(req.body)
+    
     let mosaicID = req.body.object.mosaic.objectId;
     let contributionID = req.body.object.objectId
     let contributionImageData = req.body.object.thumbnail;
