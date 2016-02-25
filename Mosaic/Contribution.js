@@ -158,6 +158,10 @@ class Contribution {
           
           //get main image stats
           console.log('done writing mosaic image to temp/mosaic_image');
+          console.log('Attempting to resize it...')
+          gm('temp/mosaic_image/'+self.contributed_filename +'.jpg').resize(self.width,self.height).write('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(){
+            console.log('finished resizing ','temp/mosaic_image/'+self.contributed_filename +'.jpg')
+          });
           
         } catch (e) {
           
