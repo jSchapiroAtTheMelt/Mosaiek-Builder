@@ -9,6 +9,8 @@ let  Stream = require('stream').Transform;
 let sm = require('simple-imagemagick');
 let exec = require("child_process").execFile;
 let remove = require('remove');
+let mkdirp = require('mkdirp');
+
 let client;
 
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
