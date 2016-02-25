@@ -70,7 +70,7 @@ class Contribution {
             self.width = dimens[0];
             self.height = dimens[1];
 
-            console.log('a mosaic image should be resized to ',self.width,self.height);
+            
             self.get_main_mosaic_image("",function(err,data){
 
             });
@@ -89,6 +89,50 @@ class Contribution {
     let mosaicQuery = new Parse.Query(Mosaic);
     let self = this;
     console.log("retrieiving main mosaic image")
+
+    mosaicQuery.get(this.main_mosaic_filename , {
+      success: function(mosaic) {
+        console.dir(mosaic.get('image').name());
+        
+        self.input.image = mosaic.get('image').url();
+        
+        //store image locally                 
+        http.request(self.input.image, function(response) {                                        
+          let data = new Stream();                                                    
+
+          response.on('data', function(chunk) {                                       
+            data.push(chunk);                                                         
+          });                                                                         
+
+          response.on('end', function() {                                             
+            try {
+              // read main mosaic image from file system.
+              fs.writeFileSync('temp/'+ self.main_mosaic_filename +'.jpg', data.read());  
+              
+              mkdirp('/tmp/mosaic_image', function(err) { 
+               
+                  // path was created unless there was error
+                  console.log('race against the clock')
+              });
+              //get main image stats
+              console.log('Gathering statistics about main mosaic image...');
+              
+            } catch (e) {
+              self.callback(e,null);
+              console.log("Error while getting image stats", e);
+
+            } 
+
+          });                                                                         
+        }).end();
+       
+      },
+
+      error: function(object, error) {
+        self.callback(error,null);
+        console.log('error',error)
+      }
+    });
   }
 
 
