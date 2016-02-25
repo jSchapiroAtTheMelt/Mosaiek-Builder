@@ -51,15 +51,15 @@ class Contribution {
     }
 
     //get mosaic map
-    client.get(this.input_filename,function(err,data){
+    client.get(this.main_mosaic_filename,function(err,data){
       
       if (err){console.log("Error while retrieving the mosaic map",err);}
       else {
 
-        self.mosaic_map = data;
+        self.mosaic_map = JSON.parse(data);
 
         //get cell height and width
-        client.get(self.input_filename + "_dimens",function(err,data){
+        client.get(self.main_mosaic_filename + "_dimens",function(err,data){
           
           if (err){console.log("Error while getting mosaics dimens",err);}
           else {

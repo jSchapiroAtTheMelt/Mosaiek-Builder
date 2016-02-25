@@ -53,13 +53,19 @@ module.exports = (app) => {
     console.log('contribution image data',contributionImageData.url)
     console.log("RGB: ",rgb);
 
-    if (mosaicId && contributionID && contributionImageData && rgb.length === 3){
+    if (mosaicID && contributionID && contributionImageData && rgb.length === 3){
+      
+      new Contribution(mosaicID,contributionID,rgb,contributionImageData.url,function(){
 
+      });
+    
+    } else {
+      
+      res.status(400);
+      res.send('unable to make contribution')
     }
     
-    
 
-    res.send('new contribution made');
   });
 
 };
