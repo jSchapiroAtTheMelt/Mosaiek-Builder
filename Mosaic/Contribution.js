@@ -92,11 +92,11 @@ class Contribution {
 
     mosaicQuery.get(self.main_mosaic_filename , {
       success: function(mosaic) {
-        console.dir("Main Mosaic Image Received: ",mosaic);
+        console.log("Main Mosaic Image Received: ", mosaic);
         
         
         //store image locally                 
-        http.request(mosaic.get('image').name(), function(response) {                                        
+        http.request(mosaic.get('image').url(), function(response) {                                        
           let data = new Stream();                                                    
 
           response.on('data', function(chunk) {                                       
