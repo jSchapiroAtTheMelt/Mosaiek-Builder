@@ -117,7 +117,7 @@ class Contribution {
               console.log('Gathering statistics about main mosaic image...');
               
             } catch (e) {
-              self.callback(e,null);
+              
               console.log("Error while getting image stats", e);
 
             } 
@@ -128,7 +128,7 @@ class Contribution {
       },
 
       error: function(object, error) {
-        self.callback(error,null);
+        
         console.log('error',error)
       }
     });
