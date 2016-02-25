@@ -189,6 +189,7 @@ class Mosaic {
                 
                 console.log('done finding average rgb value for each mosaict tile')
                 client.set(self.input_filename,JSON.stringify(self.mosaic_map)); // Store Mosaic Map in Redis
+                client.set(self.input_filename+'_contributions',JSON.stringify([]));//mosaic images
                 client.set(self.input_filename+'_dimens',JSON.stringify([self.cell.width,self.cell.height]));
                 client.set(self.input_filename + '_width_height',JSON.stringify([self.input.width,self.input.height]));
                 

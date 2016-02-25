@@ -214,9 +214,19 @@ class Contribution {
     }
     console.log('current images rgb',self.rgb)
     console.log('Best Match Diff', bestMatch)
+    self.store_in_secondary_map();
   }
 
-  is_a_match(contributionRGB,tileRGB){
+  store_in_secondary_map(){
+    //update secondary map with m
+    let self = this;
+    client.get(self.main_mosaic_filename+'_contributions',function(err,data){
+      if (err) {
+        console.log('Error while get mosaic image contributions map', err);
+      } else {
+        console.log("Contribution Map",JSON.parse(data));
+      }
+    });
 
   }
 
