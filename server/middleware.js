@@ -48,7 +48,7 @@ module.exports = (app) => {
     let rgb = [red,green,blue];
 
     console.log("MOSAIC IMAGE ")
-    console.log("mosaicID: ",mosaicId);
+    console.log("mosaicID: ",mosaicID);
     console.log("contribution id: ",contributionID);
     console.log('contribution image data',contributionImageData.url)
     console.log("RGB: ",rgb);
