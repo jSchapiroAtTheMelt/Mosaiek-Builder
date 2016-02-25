@@ -71,7 +71,7 @@ class Contribution {
             self.height = dimens[1];
 
             
-            self.get_main_mosaic_image("",function(err,data){
+            self.get_main_mosaic_image(function(err,data){
 
             });
 
@@ -84,7 +84,7 @@ class Contribution {
     //write to file system
   }
 
-  get_main_mosaic_image(objectID,cb){
+  get_main_mosaic_image(cb){
     let Mosaic = Parse.Object.extend("Mosaic");
     let mosaicQuery = new Parse.Query(Mosaic);
     let self = this;
@@ -92,12 +92,11 @@ class Contribution {
 
     mosaicQuery.get(this.main_mosaic_filename , {
       success: function(mosaic) {
-        console.dir(mosaic.get('image').name());
+        console.dir("Main Mosaic Image Received: ",mosaic.get('image').name());
         
-        self.input.image = mosaic.get('image').url();
         
         //store image locally                 
-        http.request(self.input.image, function(response) {                                        
+        http.request(mosaic.get('image').name(), function(response) {                                        
           let data = new Stream();                                                    
 
           response.on('data', function(chunk) {                                       
