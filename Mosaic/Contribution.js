@@ -65,9 +65,10 @@ class Contribution {
           
           if (err){console.log("Error while getting mosaics dimens",err);}
           else {
-
-            self.width = data[0];
-            self.height = data[1];
+            let dimens = JSON.parse(data);
+            
+            self.width = dimens[0];
+            self.height = dimens[1];
 
             console.log('a mosaic image should be resized to ',self.width,self.height);
             self.get_main_mosaic_image("",function(err,data){
