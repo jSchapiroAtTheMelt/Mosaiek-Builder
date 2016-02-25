@@ -4,6 +4,7 @@ let morgan = require('morgan');
 let ParseCloud = require('parse-cloud-express');
 let Parse = ParseCloud.Parse;
 let Mosaic = require('../Mosaic/Mosaic.js');
+let Contribution = require('../Mosaic/Contribution.js');
 
 
 module.exports = (app) => {
@@ -38,14 +39,13 @@ module.exports = (app) => {
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
     console.log(req.body)
-    /*new Mosaic('UI3wo4OfJ3',40,40,true,function(success){
-      if (success) {
+    let mosaicID = ""
+    let contributionID = ""
+    let rgb = [];
+    /*new Contribution(mosaicID,contributionID,rgb,function(){
 
-        res.send('new contribution made')
-      } else {
-        res.send('unable to make new contribution')
-      }
     });*/
+    
 
     res.send('new contribution made');
   });

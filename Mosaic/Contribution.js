@@ -1,4 +1,5 @@
 //https://github.com/lokesh/color-thief/
+'use strict';
 let Parse = require('parse/node');
 let im = require('imagemagick');
 let gm = require('gm');
@@ -13,18 +14,19 @@ let client;
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
 
-class Contribution() {
+class Contribution {
   //get mosaic_map for contribution's mosaic
   //compare avg rgb of contribution to each tile in mosaic_map
   //determine best fit
   //layer on top of mosaic
   //update db
 
-  constructor(main_mosaic_filename,mosaic_cells,mosaic_rows,rgb) {
+  constructor(main_mosaic_filename,contributed_filename,rgb,callback) {
     this.main_mosaic_filename = main_mosaic_filename;
+    this.contributed_filename = contributed_filename;
     this.mosaic_map = [];
-    this.mosaic_cells = mosaic_cells;
-    this.mosaic_rows = mosaic_rows;
+    this.mosaic_cells = 0;
+    this.mosaic_rows = 0;
     this.rgb = rgb;  
     this.width = 0;
     this.height = 0;
@@ -81,6 +83,7 @@ class Contribution() {
     let Mosaic = Parse.Object.extend("Mosaic");
     let mosaicQuery = new Parse.Query(Mosaic);
     let self = this;
+    console.log("retrieiving main mosaic image")
   }
 
 
