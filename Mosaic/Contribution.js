@@ -105,3 +105,5 @@ class Contribution {
 
   }
 }
+
+module.exports = Contribution;
