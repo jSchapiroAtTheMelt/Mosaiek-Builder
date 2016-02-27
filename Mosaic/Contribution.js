@@ -10,6 +10,7 @@ let sm = require('simple-imagemagick');
 let exec = require("child_process").execFile;
 let remove = require('remove');
 let mkdirp = require('mkdirp');
+let _ = require('underscore');
 
 let client;
 
@@ -214,17 +215,45 @@ class Contribution {
     }
     console.log('current images rgb',self.rgb)
     console.log('Best Match Diff', bestMatch)
-    self.store_in_secondary_map();
+    self.store_in_secondary_map(bestMatch);
   }
 
-  store_in_secondary_map(){
+  store_in_secondary_map(bestMatch){
     //update secondary map with m
     let self = this;
     client.get(self.main_mosaic_filename+'_contributions',function(err,data){
       if (err) {
         console.log('Error while get mosaic image contributions map', err);
       } else {
-        console.log("Contribution Map",JSON.parse(data));
+        let mosaicImageMap = JSON.parse(data);
+        let mosaicMapIndex = -1;
+        console.log('looping through secondary map',data)
+        for (let index in mosaicImageMap) {
+          console.log('comparing',mosaicImageMap[index][0],bestMatch)
+          if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] !== self.contributed_filename) {
+            mosaicMapIndex = index;
+            console.log('collision!')
+            mosaicImageMap.push([bestMatch,self.contributed_filename]);
+            break;
+          } 
+
+          if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] === self.contributed_filename){
+            mosaicMapIndex = index;
+            console.log('value exists')
+            break;
+          }
+          
+        }
+
+        if (mosaicMapIndex === -1) {
+          //mosaicImageMap.push([])
+          mosaicImageMap.push([bestMatch,self.contributed_filename]);
+          console.log('inserting',bestMatch,self.contributed_filename);
+        }
+        
+        console.log('data',mosaicImageMap)
+        
+        client.set(self.main_mosaic_filename+'_contributions',JSON.stringify(mosaicImageMap));
       }
     });
 
