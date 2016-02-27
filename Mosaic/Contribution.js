@@ -34,6 +34,7 @@ class Contribution {
     this.rgb = rgb;  //array of rgb values
     this.width = 0;
     this.height = 0;
+    this.callback = callback;
 
     this.get_mosaic_map()
   }
@@ -80,9 +81,7 @@ class Contribution {
         })
       }
     });
-    //make http request to get image data
-    //resize image to mosaic maps cell size
-    //write to file system
+  
   }
 
   get_main_mosaic_image(cb){
@@ -124,7 +123,7 @@ class Contribution {
               console.log('Gathering statistics about main mosaic image...');
               
             } catch (e) {
-              
+              self.callback(e,null);
               console.log("Error while getting image stats", e);
 
             } 
@@ -166,7 +165,7 @@ class Contribution {
           });
           
         } catch (e) {
-          
+          self.callback(e,null);
           console.log("Error while getting image stats", e);
 
         } 
@@ -229,6 +228,7 @@ class Contribution {
         let mosaicMapIndex = -1;
         console.log('looping through secondary map',data)
         for (let index in mosaicImageMap) {
+          
           console.log('comparing',mosaicImageMap[index][0],bestMatch)
           if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] !== self.contributed_filename) {
             mosaicMapIndex = index;
@@ -246,7 +246,7 @@ class Contribution {
         }
 
         if (mosaicMapIndex === -1) {
-          //mosaicImageMap.push([])
+          
           mosaicImageMap.push([bestMatch,self.contributed_filename]);
           console.log('inserting',bestMatch,self.contributed_filename);
         }
@@ -254,13 +254,17 @@ class Contribution {
         console.log('data',mosaicImageMap)
         
         client.set(self.main_mosaic_filename+'_contributions',JSON.stringify(mosaicImageMap));
+
+        self.callback(null,mosaicImageMap);
+
+        self.add_to_mosaic();
       }
     });
 
   }
 
   add_to_mosaic(){
-
+    //socket io interaction
   }
 
   update_db(){

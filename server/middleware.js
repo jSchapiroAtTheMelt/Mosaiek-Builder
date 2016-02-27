@@ -9,14 +9,17 @@ let Contribution = require('../Mosaic/Contribution.js');
 
 module.exports = (app) => {
 
+  let server = require('http').Server(app);
+  let io = require('socket.io')(server);
+
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(morgan('dev'));
   
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
-    console.log("Retrieving mosaic_map for",req.body.object.objectId)
-    let mosaicId = req.body.object.objectId 
-   
+    //console.log("Retrieving mosaic_map for",req.body.object.objectId)
+    //let mosaicId = req.body.object.objectId 
+    let mosaicId = "448GSqKkkW"
     if (mosaicId) {
       new Mosaic(mosaicId,20,20,true,function(err,mosaic_map){
         if (mosaic_map) {
@@ -38,14 +41,15 @@ module.exports = (app) => {
 
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
-    
-    let mosaicID = req.body.object.mosaic.objectId;
-    let contributionID = req.body.object.objectId
-    let contributionImageData = req.body.object.thumbnail;
-    let red = req.body.object.red;
-    let green = req.body.object.green;
-    let blue = req.body.object.blue;
-    let rgb = [red,green,blue];
+    server.listen(3020); //expose port 80
+
+    let mosaicID = "448GSqKkkW"//req.body.object.mosaic.objectId; //448GSqKkkW
+    let contributionID = "UFySvKQlpX"//req.body.object.objectId //UFySvKQlpX
+    let contributionImageData = "http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg"//req.body.object.thumbnail; //http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg
+    //let red = req.body.object.red;
+    //let green = req.body.object.green;
+    //let blue = req.body.object.blue;
+    let rgb = [ 78, 66, 49 ]//[red,green,blue]; //[ 78, 66, 49 ]
 
     console.log("MOSAIC IMAGE ")
     console.log("mosaicID: ",mosaicID);
@@ -55,8 +59,16 @@ module.exports = (app) => {
 
     if (mosaicID && contributionID && contributionImageData && rgb.length === 3){
       
-      new Contribution(mosaicID,contributionID,rgb,contributionImageData.url,function(){
-
+      new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data){
+        if (err) {
+          res.status(400);
+          res.send("unable to make contribution")
+          socket.emit('contribution',data);
+          
+        } else {
+          res.status(200)
+          res.send("new contribution made")
+        }
       });
     
     } else {
