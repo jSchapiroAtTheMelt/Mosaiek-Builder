@@ -11,7 +11,7 @@ module.exports = (app) => {
 
   let server = require('http').Server(app);
   let io = require('socket.io')(server);
-
+  
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(morgan('dev'));
@@ -63,11 +63,12 @@ module.exports = (app) => {
         if (err) {
           res.status(400);
           res.send("unable to make contribution")
-          socket.emit('contribution',data);
           
+
         } else {
           res.status(200)
           res.send("new contribution made")
+          io.emit('contribution',data);
         }
       });
     
