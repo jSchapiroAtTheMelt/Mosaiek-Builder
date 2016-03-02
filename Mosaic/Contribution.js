@@ -177,8 +177,9 @@ class Contribution {
   match_avg_rgb(){
     let self = this;
     //loop through each value in mosaic map and pass to is a match
-    console.log('comparing mosaic image to mosaic map',self.mosaic_map);
+    console.log('comparing mosaic image to mosaic map',self.mosaic_map.sort(naturalSorter));
     let bestMatch = '' //mosaic-tile name
+    let bestRGB = [];
     let bestMatchDiff = -1; //diff between rgb vals
 
     for (let tile in self.mosaic_map){
@@ -203,29 +204,33 @@ class Contribution {
       //bestMatchDiff not set
       if (bestMatchDiff === -1) {
         bestMatchDiff = currentDiff;
-        bestMatch = self.mosaic_map[tile][0];
+        bestMatch = tile;
+        bestRGB = tileRGB;
       } 
 
       if (currentDiff < bestMatchDiff) {
         bestMatchDiff = currentDiff;
-        bestMatch = self.mosaic_map[tile][0];
+        bestMatch = tile;
+        bestRGB = tileRGB;
       }
 
     }
     console.log('current images rgb',self.rgb)
     console.log('Best Match Diff', bestMatch)
-    self.store_in_secondary_map(bestMatch);
+    self.store_in_secondary_map(bestMatch,bestRGB);
   }
 
-  store_in_secondary_map(bestMatch){
+  store_in_secondary_map(bestMatch,bestRGB){
     //update secondary map with m
     let self = this;
+    
     client.get(self.main_mosaic_filename+'_contributions',function(err,data){
       if (err) {
         console.log('Error while get mosaic image contributions map', err);
       } else {
         let mosaicImageMap = JSON.parse(data);
         let mosaicMapIndex = -1;
+
         console.log('looping through secondary map',data)
         for (let index in mosaicImageMap) {
           
@@ -251,16 +256,41 @@ class Contribution {
           console.log('inserting',bestMatch,self.contributed_filename);
         }
         
-        console.log('data',mosaicImageMap)
+        console.log('best match',bestMatch)
+        console.log('best RGB',bestRGB)
+        console.log('sorted data',mosaicImageMap.sort(naturalSorter))
+        console.log('count',self.mosaic_map.length)
+
         
         client.set(self.main_mosaic_filename+'_contributions',JSON.stringify(mosaicImageMap));
 
-        self.callback(null,mosaicImageMap);
+        let red = bestRGB[0];
+        let green = bestRGB[1];
+        let blue = bestRGB[2];
 
-        self.add_to_mosaic();
+        self.transform_image(red,green,blue,mosaicImageMap);
       }
     });
 
+  }
+
+  transform_image(red,green,blue,mosaicImageMap){
+    let self = this;
+    try {
+      im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '80%', 'temp/mosaic_image/'+self.contributed_filename +'.jpg', 'temp/mosaic_image/'+self.contributed_filename +'.jpg'],function(err,data){
+        
+        if (err){console.log('something went wrong in generating colored contribution',err)}
+        console.log('done transforming contribution to rgb value')
+
+        //read from file system
+        fs.readFile('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(err,data){
+          console.log('received data',data.toString('base64'))
+        });
+          
+      });
+    } catch (e) {
+      console.log("Error while transforming contribution",e);
+    }
   }
 
   add_to_mosaic(){
@@ -270,6 +300,33 @@ class Contribution {
   update_db(){
 
   }
+}
+
+function naturalSorter(as, bs){
+  as = as[0];
+  bs = bs[0];
+  console.log("as",as);
+  console.log("bs",bs);
+    if (!as || !bs) {
+      return 0;
+    }
+    var a, b, a1, b1, i= 0, n, L,
+    rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
+    if(as=== bs) return 0;
+    a= as.toLowerCase().match(rx);
+    b= bs.toLowerCase().match(rx);
+    L= a.length;
+    while(i<L){
+        if(!b[i]) return 1;
+        a1= a[i],
+        b1= b[i++];
+        if(a1!== b1){
+            n= a1-b1;
+            if(!isNaN(n)) return n;
+            return a1>b1? 1:-1;
+        }
+    }
+    return b[i]? -1:0;
 }
 
 module.exports = Contribution;
