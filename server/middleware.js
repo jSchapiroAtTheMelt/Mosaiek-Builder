@@ -45,7 +45,7 @@ module.exports = (app) => {
 
     let mosaicID = req.body.object.mosaic.objectId; //448GSqKkkW
     let contributionID = req.body.object.objectId //UFySvKQlpX
-    //let contributionImageData = "http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg"//req.body.object.thumbnail; //http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg
+    let contributionImageData = req.body.object.thumbnail; //http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg
     let red = req.body.object.red;
     let green = req.body.object.green;
     let blue = req.body.object.blue;
