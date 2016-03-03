@@ -11,7 +11,7 @@ module.exports = (app) => {
 
   let server = require('http').Server(app);
   let io = require('socket.io')(server);
-  server.listen(8080); //expose port 80
+  server.listen(process.env.PORT || 8080); //expose port 8080
 
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
