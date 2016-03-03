@@ -88,11 +88,11 @@ class Contribution {
     let Mosaic = Parse.Object.extend("Mosaic");
     let mosaicQuery = new Parse.Query(Mosaic);
     let self = this;
-    console.log("retrieiving main mosaic image",self.main_mosaic_filename)
+    console.log("retrieiving contribution image",self.main_mosaic_filename)
 
     mosaicQuery.get(self.main_mosaic_filename , {
       success: function(mosaic) {
-        console.log("Main Mosaic Image Received: ", mosaic);
+        console.log("Contribution Mosaic Image Received: ", mosaic);
         
         //store image locally                 
         http.request(mosaic.get('image').url(), function(response) {                                        
@@ -117,7 +117,7 @@ class Contribution {
 
                   }
                   // path was created unless there was error
-                  console.log('race against the clock')
+                  
               });
               //get main image stats
               console.log('Gathering statistics about main mosaic image...');
