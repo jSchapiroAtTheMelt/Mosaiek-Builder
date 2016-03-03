@@ -284,7 +284,7 @@ class Contribution {
 
         //read from file system
         fs.readFile('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(err,data){
-          console.log('received data',data.toString('base64'))
+          self.callback(null,mosaicImageMap,data.toString('base64'))
         });
           
       });
