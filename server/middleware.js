@@ -11,7 +11,7 @@ module.exports = (app) => {
 
   let server = require('http').Server(app);
   let io = require('socket.io')(server);
-  server.listen(process.env.PORT || 8080); //expose port 8080
+  server.listen(process.env.PORT || 3000); //expose port 8080
 
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
@@ -41,6 +41,7 @@ module.exports = (app) => {
   })
 
   app.post('/hooks/mosaiek/contribute',(req,res) => {
+    
     
 
     let mosaicID = req.body.object.mosaic.objectId; //448GSqKkkW
