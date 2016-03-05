@@ -305,8 +305,7 @@ class Contribution {
 function naturalSorter(as, bs){
   as = as[0];
   bs = bs[0];
-  console.log("as",as);
-  console.log("bs",bs);
+
     if (!as || !bs) {
       return 0;
     }
