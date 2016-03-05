@@ -176,7 +176,7 @@ class Contribution {
   match_avg_rgb(){
     let self = this;
     //loop through each value in mosaic map and pass to is a match
-    console.log('comparing mosaic image to mosaic map',self.mosaic_map.sort(naturalSorter));
+    console.log('comparing mosaic image to mosaic map, count:',self.mosaic_map.length);
     let bestMatch = '' //mosaic-tile name
     let bestRGB = [];
     let bestMatchDiff = -1; //diff between rgb vals
