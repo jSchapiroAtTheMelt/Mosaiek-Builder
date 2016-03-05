@@ -182,6 +182,7 @@ class Contribution {
     let bestRGB = [];
     let bestMatchDiff = -1; //diff between rgb vals
 
+
     for (let tile in self.mosaic_map){
       //current tiles rgb
       let tileRGB = self.mosaic_map[tile][1];
@@ -238,7 +239,9 @@ class Contribution {
           if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] !== self.contributed_filename) {
             mosaicMapIndex = index;
             console.log('collision!')
-            mosaicImageMap.push([bestMatch,self.contributed_filename]);
+            //remove the collision value from map and re-compute
+            self.mosaic_map.splice(bestMatch,1);
+            self.match_avg_rgb();
             break;
           } 
 
@@ -254,6 +257,8 @@ class Contribution {
           
           mosaicImageMap.push([bestMatch,self.contributed_filename]);
           console.log('inserting',bestMatch,self.contributed_filename);
+        } else {
+          mosaicImageMap.push([bestMatch,self.contributed_filename]);
         }
         
         console.log('best match',bestMatch)
