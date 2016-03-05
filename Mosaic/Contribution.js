@@ -155,7 +155,6 @@ class Contribution {
           // read main mosaic image from file system.
           fs.writeFileSync('temp/mosaic_image/'+ self.contributed_filename +'.jpg', data.read());  
           
-          
           //get main image stats
           console.log('done writing mosaic image to temp/mosaic_image');
           console.log('Attempting to resize it...')
@@ -242,13 +241,13 @@ class Contribution {
             //remove the collision value from map and re-compute
             self.mosaic_map.splice(bestMatch,1);
             self.match_avg_rgb();
-            break;
+            return;
           } 
 
           if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] === self.contributed_filename){
             mosaicMapIndex = index;
             console.log('value exists')
-            break;
+            return;
           }
           
         }
