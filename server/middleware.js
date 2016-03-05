@@ -70,13 +70,13 @@ module.exports = (app) => {
 
         } else {
 
-          console.log("data",data[0]);
+          console.log("data",data);
           console.log('transformed image',transformedImage)
 
           let mosaicImageMap = {
             mosaic:mosaicID,
             mosaicImage:contributionID,
-            position:data[0],
+            position:data,
             rgbImage:transformedImage
           }
 
