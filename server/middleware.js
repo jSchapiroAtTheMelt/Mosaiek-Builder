@@ -8,10 +8,12 @@ let Contribution = require('../Mosaic/Contribution.js');
 
 
 module.exports = (app) => {
-
+  
   let server = require('http').Server(app);
   let io = require('socket.io')(server);
-  server.listen(process.env.PORT || 8080); //expose port 8080
+  let port = process.env.PORT || 5000
+  console.log(port)
+  server.listen(port); //expose port 8080
 
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());

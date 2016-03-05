@@ -6,4 +6,4 @@ let app = require('express')();
 
 require('./server/middleware')(app);
 
-app.listen(process.env.PORT);
+//app.listen(process.env.PORT);
