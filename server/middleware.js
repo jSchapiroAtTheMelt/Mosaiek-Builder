@@ -22,11 +22,13 @@ module.exports = (app) => {
 
   io.on('connection',function(socket){
     console.log('socket connected!')
-    io.emit('handshake',{connection:true});
 
     io.on('handshake',function(data){
       console.log('handshake received')
     });
+    
+    io.emit('handshake',{connection:true});
+
 
   })
 
