@@ -12,7 +12,7 @@ module.exports = (app) => {
   let server = require('http').Server(app);
   let io = require('socket.io')(server);
   let port = process.env.PORT || 5000
-  let mosaicRooms = []; //{mosaicID:[socket1,socket2]}
+  let mosaicRooms = {}; //{mosaicID:[socket1,socket2]}
 
   server.listen(port); 
 
@@ -22,11 +22,18 @@ module.exports = (app) => {
 
   io.on('connection',function(socket){
     console.log('socket connected!')
+    let connection = socket;
 
-    socket.on('handshake',function(socket,data){
+    socket.on('handshake',function(data){
       console.log('handshake received')
-      console.log('socket',socket)
-      console.log('data',data)
+      console.log('socket',connection);
+      console.log('data',data);
+      let connections = mosaicRooms[data];
+      if (connections === 'undefined'){
+        connections[data] = [connection];
+      } else {
+        connections.push(connection);
+      }
     });
     
     socket.emit('handshake',{connection:true});
