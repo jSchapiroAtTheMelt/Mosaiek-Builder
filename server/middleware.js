@@ -34,6 +34,7 @@ module.exports = (app) => {
         mosaicRooms[data] = [connection];
       } else {
         connections.push(connection);
+        console.log('there are ' + connections.length + 'connections' + 'on ' + data);
       }
     });
     
