@@ -29,6 +29,7 @@ module.exports = (app) => {
       console.log('socket',connection);
       console.log('data',data);
       let connections = mosaicRooms[data];
+      console.log("connections",connections);
       if (connections === 'undefined'){
         connections[data] = [connection];
       } else {
