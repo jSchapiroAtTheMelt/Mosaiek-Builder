@@ -31,7 +31,7 @@ module.exports = (app) => {
       let connections = mosaicRooms[data];
       console.log("connections",connections);
       if (connections === undefined){
-        connections[data] = [connection];
+        mosaicRooms[data] = [connection];
       } else {
         connections.push(connection);
       }
