@@ -12,18 +12,20 @@ module.exports = (app) => {
   let server = require('http').Server(app);
   let io = require('socket.io')(server);
   let port = process.env.PORT || 5000
-  let contributionNamespace = io.of('/contribution');
-  console.log(port)
-  server.listen(port); //expose port 8080
+  let mosaicRooms = []; //{mosaicID:[socket1,socket2]}
+
+  server.listen(port); 
 
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(morgan('dev'));
 
-  contributionNamespace.on('connect',(socket) => {
-    console.log('connected to contribution namespace')
+  io.on('connection',function(socket){
+    console.log('socket connected!')
+    io.emit('connect',{connected:true});
   })
-  
+
+ 
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
     console.log("Retrieving mosaic_map for",req.body.object.objectId)
     let mosaicId = req.body.object.objectId 
