@@ -22,10 +22,11 @@ module.exports = (app) => {
 
   io.on('connection',function(socket){
     console.log('socket connected!')
+    io.emit('handshake',{connection:true});
   })
 
-  io.emit('connect',{connection:true});
   
+
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
     console.log("Retrieving mosaic_map for",req.body.object.objectId)
     let mosaicId = req.body.object.objectId 
