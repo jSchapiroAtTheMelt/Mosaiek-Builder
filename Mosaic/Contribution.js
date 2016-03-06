@@ -17,6 +17,19 @@ let client;
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
 
+if (process.env.REDISTOGO_URL) {
+    
+    let rtg   = require("url").parse(process.env.REDISTOGO_URL);
+    client = require("redis").createClient(rtg.port, rtg.hostname);
+
+    client.auth(rtg.auth.split(":")[1]);
+
+} else {
+
+    client = require("redis").createClient();
+    console.log('here')
+}
+
 class Contribution {
   //get mosaic_map for contribution's mosaic
   //compare avg rgb of contribution to each tile in mosaic_map
@@ -43,18 +56,6 @@ class Contribution {
     //read map from redis -> json parse -> store as instance property
     let self = this;
 
-    if (process.env.REDISTOGO_URL) {
-        
-        let rtg   = require("url").parse(process.env.REDISTOGO_URL);
-        client = require("redis").createClient(rtg.port, rtg.hostname);
-
-        client.auth(rtg.auth.split(":")[1]);
-
-    } else {
-
-        client = require("redis").createClient();
-        console.log('here')
-    }
 
     //get mosaic map
     client.get(this.main_mosaic_filename,function(err,data){
