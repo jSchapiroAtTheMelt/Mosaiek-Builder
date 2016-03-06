@@ -25,7 +25,9 @@ module.exports = (app) => {
     io.emit('handshake',{connection:true});
   })
 
-  
+  io.on('handshake',function(data){
+    console.log('handshake received')
+  });
 
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
     console.log("Retrieving mosaic_map for",req.body.object.objectId)
