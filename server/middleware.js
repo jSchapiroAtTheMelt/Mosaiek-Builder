@@ -26,11 +26,11 @@ module.exports = (app) => {
 
     socket.on('handshake',function(data){
       console.log('handshake received')
-      console.log('socket',connection);
+      //console.log('socket',connection);
       console.log('data',data);
       let connections = mosaicRooms[data];
       console.log("connections",connections);
-      if (connections === 'undefined'){
+      if (connections === undefined){
         connections[data] = [connection];
       } else {
         connections.push(connection);
