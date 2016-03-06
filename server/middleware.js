@@ -29,13 +29,15 @@ module.exports = (app) => {
       //console.log('socket',connection);
       console.log('data',data);
       let connections = mosaicRooms[data];
-      console.log("connections",connections);
+      
       if (connections === undefined){
         mosaicRooms[data] = [connection];
       } else {
         connections.push(connection);
         console.log('there are ' + connections.length + 'connections' + 'on ' + data);
       }
+
+      console.log("connections",connections);
     });
     
     socket.emit('handshake',{connection:true});
