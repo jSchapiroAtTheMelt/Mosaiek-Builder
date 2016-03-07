@@ -46,21 +46,9 @@ class State {
               // read main mosaic image from file system.
               fs.writeFileSync('temp/state/'+ self.mainMosaicID +'.jpg', data.read());  
               
-              /*mkdirp('temp/mosaic_image', function(err) { 
-                  if (err){
-                    console.log("Error while creating temp/mosaic_image",err);
-                   
-                  } else {
-                    
-                    
-
-                  }
-                  // path was created unless there was error
-                  
-              });*/
+              console.log('beggining layering of mosaicImages');
               self.layer_mosaic_images();
 
-              console.log('beggining layering of mosaicImages');
               
             } catch (e) {
               
@@ -85,7 +73,7 @@ class State {
     let self = this;
     let layerFunctions = [];
 
-    let base = function(){
+   /* let base = function(){
       return  gm().in('-page', '+0+0').in('temp/state/'+ self.mainMosaicID +'.jpg')
     }
     
@@ -98,20 +86,20 @@ class State {
       return function(gm){
         return gm.in('-page',coordString).in(imagePath.toString());
       };
-    }
+    }*/
 
     for (mosaicImage in self.mosaicImageMap){
       console.log("mosaic image",mosaicImage);
-      let layer = layerImage(coords,path);
-      base = layer(base);
+      //let layer = layerImage(coords,path);
+      //base = layer(base);
     }
 
-    base.mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
+    /*base.mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
       if (err) {console.log('error while layering images',e);}
       else {
         console.log('final state written to temp/state/')
       }
-    } );
+    });*/
 
     /*gm()
      .in('-page', '+0+0')
