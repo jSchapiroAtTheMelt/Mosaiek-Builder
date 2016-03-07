@@ -88,7 +88,7 @@ class State {
       };
     }*/
 
-    for (mosaicImage in self.mosaicImageMap){
+    for (let mosaicImage in self.mosaicImageMap){
       console.log("mosaic image",mosaicImage);
       //let layer = layerImage(coords,path);
       //base = layer(base);
