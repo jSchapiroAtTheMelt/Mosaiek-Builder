@@ -101,7 +101,6 @@ module.exports = (app) => {
         } else {
 
           console.log("data",data);
-          console.log('transformed image',transformedImage)
 
           let mosaicImageMap = {
             mosaic:mosaicID,
