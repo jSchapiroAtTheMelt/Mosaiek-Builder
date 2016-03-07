@@ -47,7 +47,7 @@ class State {
               fs.writeFileSync('temp/state/'+ self.mainMosaicID +'.jpg', data.read());  
               
               console.log('beggining layering of mosaicImages');
-              self.layer_mosaic_images();
+              self.get_mosaic_images();
 
               
             } catch (e) {
@@ -66,6 +66,60 @@ class State {
         console.log('error',error)
       }
     });
+  }
+
+  get_mosaic_images(){
+
+    let MosaicImage = Parse.Object.extend("MosaicImage");
+    let mosaicImageQuery = new Parse.Query(MosaicImage);
+    let self = this;
+    let count = 0;
+
+    for (let mi in self.mosaicImageMap) {
+      mosaicImageQuery.get(self.mosaicImageMap[mi][1] , {
+        success: function(mosaicImage) {
+          console.log(" Mosaic Image Received: ", mosaicImage);
+          
+          //store image locally                 
+          http.request(mosaicImage.get('image').url(), function(response) {                                        
+            let data = new Stream();                                                    
+
+            response.on('data', function(chunk) {                                       
+              data.push(chunk);                                                         
+            });                                                                         
+
+            response.on('end', function() {                                             
+              try {
+                // read main mosaic image from file system.
+                fs.writeFileSync('temp/state/mosaic_images/'+ mosaicImageMap[mi][1] +'.jpg', data.read());  
+                
+                console.log('beggining layering of mosaicImages');
+                
+                count++;
+
+                if (count === self.mosaicImageMap.length){
+                  self.layer_mosaic_images();
+                }
+                
+              } catch (e) {
+                
+                console.log("State.js: Error while getting main mosaic image", e);
+
+              } 
+
+            });                                                                         
+          }).end();
+         
+        },
+
+        error: function(object, error) {
+          
+          console.log('error',error)
+        }
+      });
+    }
+
+    
   }
 
   //layer all images in the mosaicImageMap into the main mosaic image
