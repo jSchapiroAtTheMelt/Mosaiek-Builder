@@ -145,3 +145,5 @@ function getXPostion(postion){
 function getYPostion(position){
   return position/10;
 }
+
+module.exports = State;
