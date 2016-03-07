@@ -91,7 +91,7 @@ class State {
             response.on('end', function() {                                             
               try {
                 // read main mosaic image from file system.
-                fs.writeFileSync('temp/state/mosaic_images/'+ mosaicImageMap[mi][1] +'.jpg', data.read());  
+                fs.writeFileSync('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg', data.read());  
                 
                 console.log('beggining layering of mosaicImages');
                 
