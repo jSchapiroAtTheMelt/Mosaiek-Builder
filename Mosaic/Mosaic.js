@@ -14,6 +14,20 @@ let client;
 
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
+//initialize redis
+if (process.env.REDISTOGO_URL) {
+    
+    let rtg   = require("url").parse(process.env.REDISTOGO_URL);
+    client = require("redis").createClient(rtg.port, rtg.hostname);
+
+    client.auth(rtg.auth.split(":")[1]);
+
+} else {
+
+    client = require("redis").createClient();
+    console.log('here')
+}
+
 class Mosaic {
 
 
@@ -41,20 +55,6 @@ class Mosaic {
   should_prepare() {
     
     let self = this;
-
-    //initialize redis
-    if (process.env.REDISTOGO_URL) {
-        
-        let rtg   = require("url").parse(process.env.REDISTOGO_URL);
-        client = require("redis").createClient(rtg.port, rtg.hostname);
-
-        client.auth(rtg.auth.split(":")[1]);
-
-    } else {
-
-        client = require("redis").createClient();
-        console.log('here')
-    }
 
     self.prepare();
         
@@ -187,7 +187,17 @@ class Mosaic {
              counter++;
              if (counter == mosaicImages.length-1){
                 
+                //trim the fat
+                if (self.mosaic_map.length > self.rows * self.columns) self.mosaic_map = self.mosaic_map.slice(0, self.rows * self.columns);
+
+                //clear existing ref
+                client.del(self.input_filename);
+                client.del(self.input_filename+'_contributions');
+                client.del(self.input_filename+'_dimens');
+                client.del(self.input_filename + '_width_height');
+
                 console.log('done finding average rgb value for each mosaict tile')
+                
                 client.set(self.input_filename,JSON.stringify(self.mosaic_map)); // Store Mosaic Map in Redis
                 client.set(self.input_filename+'_contributions',JSON.stringify([]));//mosaic images
                 client.set(self.input_filename+'_dimens',JSON.stringify([self.cell.width,self.cell.height]));
@@ -200,6 +210,10 @@ class Mosaic {
                   fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty
                 })
                 self.callback(null,self.mosaic_map)
+
+                
+
+
                 //self.gen_initial_mosaic(); saving this for a rainy day
              }
            })

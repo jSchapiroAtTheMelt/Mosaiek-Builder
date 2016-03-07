@@ -273,13 +273,13 @@ class Contribution {
         let green = bestRGB[1];
         let blue = bestRGB[2];
 
-        self.transform_image(red,green,blue,bestMatch);
+        self.transform_image(red,green,blue,bestMatch,mosaicImageMap);
       }
     });
 
   }
 
-  transform_image(red,green,blue,bestMatch){
+  transform_image(red,green,blue,bestMatch,mosaicImageMap){
     let self = this;
     try {
       im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '80%', 'temp/mosaic_image/'+self.contributed_filename +'.jpg', 'temp/mosaic_image/'+self.contributed_filename +'.jpg'],function(err,data){
@@ -289,7 +289,7 @@ class Contribution {
 
         //read from file system
         fs.readFile('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(err,data){
-          self.callback(null,bestMatch,data.toString('base64'))
+          self.callback(null,bestMatch,data.toString('base64'),mosaicImageMap)
         });
           
       });

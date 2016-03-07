@@ -5,6 +5,7 @@ let ParseCloud = require('parse-cloud-express');
 let Parse = ParseCloud.Parse;
 let Mosaic = require('../Mosaic/Mosaic.js');
 let Contribution = require('../Mosaic/Contribution.js');
+let State = require('../Mosaic/State.js');
 
 
 module.exports = (app) => {
@@ -74,8 +75,7 @@ module.exports = (app) => {
 
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
-    
-
+  
     let mosaicID = req.body.object.mosaic.objectId; //448GSqKkkW
     let contributionID = req.body.object.objectId //UFySvKQlpX
     let contributionImageData = req.body.object.thumbnail; //http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg
@@ -92,7 +92,7 @@ module.exports = (app) => {
 
     if (mosaicID && contributionID && contributionImageData && rgb.length === 3){
       
-      new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data,transformedImage){
+      new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data,transformedImage,stateMap){
         if (err) {
           res.status(400);
           res.send("unable to make contribution")
@@ -114,6 +114,9 @@ module.exports = (app) => {
           res.status(200)
           res.send("new contribution made")
 
+          new State(mosaicID,stateMap,function(){
+
+          });
         }
       });
     
