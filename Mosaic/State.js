@@ -19,7 +19,7 @@ class State {
     this.mainMosaicID = mainMosaicID;
     this.mosaicImageMap = mosaicImageMap;
 
-    get_main_mosaic();
+    this.get_main_mosaic();
   }
 
   //get main mosaic image
