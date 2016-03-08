@@ -141,7 +141,9 @@ class State {
       let coordString = xCoord + yCoord;
 
       return function(gm){
-        return gm().in('-page',coordString).in(imagePath.toString());
+        return function() {
+          gm().in('-page',coordString).in(imagePath.toString());
+        }
       };
     }
 
