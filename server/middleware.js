@@ -47,9 +47,6 @@ module.exports = (app) => {
   })
 
 
-
-
-
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
     console.log("Retrieving mosaic_map for",req.body.object.objectId)
     let mosaicId = req.body.object.objectId 
@@ -94,6 +91,7 @@ module.exports = (app) => {
       
       new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data,transformedImage,stateMap){
         if (err) {
+          console.log("unable to make contribution: ",err);
           res.status(400);
           res.send("unable to make contribution: " + err);
           
@@ -109,6 +107,7 @@ module.exports = (app) => {
             rgbImage:transformedImage
           }
 
+          console.log("new contribution made: ", mosaicImageMap);
           io.emit('contribution',mosaicImageMap);
           res.status(200)
           res.send("new contribution made")
@@ -116,7 +115,9 @@ module.exports = (app) => {
           new State(mosaicID,stateMap,function(){
 
           });
+
         }
+
       });
     
     } else {
