@@ -94,7 +94,7 @@ class State {
                 fs.writeFileSync('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg', data.read());  
                 
                 console.log('Count:',count);
-                console.log('Target Count:',self.mosaicImageMap.count)
+                console.log('Target Count:',self.mosaicImageMap.length)
                 
                 count++;
 
@@ -130,7 +130,7 @@ class State {
     let self = this;
     let layerFunctions = [];
 
-   /* let base = function(){
+    let base = function(){
       return  gm().in('-page', '+0+0').in('temp/state/'+ self.mainMosaicID +'.jpg')
     }
     
@@ -143,20 +143,24 @@ class State {
       return function(gm){
         return gm.in('-page',coordString).in(imagePath.toString());
       };
-    }*/
+    }
 
     for (let mosaicImage in self.mosaicImageMap){
       console.log("mosaic image",self.mosaicImageMap[mosaicImage]);
-      //let layer = layerImage(coords,path);
-      //base = layer(base);
+      let position = parseInt(self.mosaicImageMap[mosaicImage][0]);
+      let path = 'temp/state/mosaic_images/' + self.mosaicImageMap[mosaicImage][1].toString();
+      console.log('calling base with ',position,path);
+      let layer = layerImage([getXPostion(position),getYPostion(position)],path);
+
+      base = layer(base);
     }
 
-    /*base.mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
+    base.mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
       if (err) {console.log('error while layering images',e);}
       else {
         console.log('final state written to temp/state/')
       }
-    });*/
+    });
 
     /*gm()
      .in('-page', '+0+0')
