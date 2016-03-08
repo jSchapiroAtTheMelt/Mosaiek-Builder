@@ -231,12 +231,16 @@ class Contribution {
     let self = this;
     
     client.get(self.main_mosaic_filename+'_contributions',function(err,data){
+
       if (err) {
         console.log('Error while get mosaic image contributions map', err);
       } else {
         let mosaicImageMap = JSON.parse(data);
         let mosaicMapIndex = -1;
 
+        if (mosaicImageMap.length = 100) {
+          self.callback("mosaic iamge map is full")
+        }
         console.log('looping through secondary map',data)
         for (let index in mosaicImageMap) {
           
