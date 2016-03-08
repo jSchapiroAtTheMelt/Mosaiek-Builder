@@ -157,6 +157,7 @@ class State {
       base = layer(base);
     }
 
+    console.log('base',JSON.stringify(base));
     base().mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
       if (err) {console.log('error while layering images',e);}
       else {
