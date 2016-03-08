@@ -147,6 +147,8 @@ class State {
     gm('temp/state/'+ self.mainMosaicID +'.jpg').size(function(err,size){
       let width = size.width;
       let height = size.height;
+      console.log("main mosaic height:",height)
+      console.log("main mosaic width:",width)
 
       for (let mosaicImage in self.mosaicImageMap){
         console.log("mosaic image",self.mosaicImageMap[mosaicImage]);
