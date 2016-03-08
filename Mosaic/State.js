@@ -93,11 +93,13 @@ class State {
                 // read main mosaic image from file system.
                 fs.writeFileSync('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg', data.read());  
                 
-                console.log('beggining layering of mosaicImages');
+                console.log('Count:',count);
+                console.log('Target Count:',self.mosaicImageMap.count)
                 
                 count++;
 
                 if (count === self.mosaicImageMap.length){
+                  console.log('beggining layering of mosaicImages');
                   self.layer_mosaic_images();
                 }
                 
@@ -124,6 +126,7 @@ class State {
 
   //layer all images in the mosaicImageMap into the main mosaic image
   layer_mosaic_images(){
+    console.log('State.js: layer mosaic images')
     let self = this;
     let layerFunctions = [];
 
