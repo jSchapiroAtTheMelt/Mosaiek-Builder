@@ -181,6 +181,7 @@ class Contribution {
     
     if (self.mosaic_map.length === 0){
       self.callback("mosaic map full or has no length");
+      return;
     }
 
     let bestMatch = '' //mosaic-tile name
@@ -240,6 +241,7 @@ class Contribution {
 
         if (mosaicImageMap.length = 100) {
           self.callback("mosaic iamge map is full")
+          return;
         }
         console.log('looping through secondary map',data)
         for (let index in mosaicImageMap) {
