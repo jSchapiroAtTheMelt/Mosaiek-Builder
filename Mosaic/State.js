@@ -189,7 +189,7 @@ function getPostion(){
 
 }
 
-function getXPostion(postion){
+function getXPostion(position){
   return position % 10;
 }
 
