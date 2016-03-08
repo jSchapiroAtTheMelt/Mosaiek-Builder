@@ -139,12 +139,9 @@ class State {
       let xCoord = "+" + coords[0].toString();
       let yCoord = "+" + coords[1].toString();
       let coordString = xCoord + yCoord;
-
-      return function(gm){
-        return function() {
-          gm().in('-page',coordString).in(imagePath.toString());
-        }
-      };
+      
+      layerFunctions.push(".in('-page',"+coordString+").in("+imagePath+".toString())");
+        
     }
 
     for (let mosaicImage in self.mosaicImageMap){
@@ -152,12 +149,13 @@ class State {
       let position = parseInt(self.mosaicImageMap[mosaicImage][0]);
       let path = 'temp/state/mosaic_images/' + self.mosaicImageMap[mosaicImage][1].toString();
       console.log('calling base with ',position,path);
-      let layer = layerImage([getXPostion(position),getYPostion(position)],path);
-
-      base = layer(base);
+      
+      layerImage([getXPostion(position),getYPostion(position)],path);
+      
     }
 
-    console.log('base',JSON.stringify(base));
+    console.log('base',layerFunctions);
+
     base().mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
       if (err) {console.log('error while layering images',e);}
       else {
