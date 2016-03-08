@@ -95,7 +95,7 @@ module.exports = (app) => {
       new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data,transformedImage,stateMap){
         if (err) {
           res.status(400);
-          res.send("unable to make contribution")
+          res.send("unable to make contribution: " + err);
           
 
         } else {

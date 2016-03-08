@@ -178,6 +178,11 @@ class Contribution {
     let self = this;
     //loop through each value in mosaic map and pass to is a match
     console.log('comparing mosaic image to mosaic map, count:',self.mosaic_map.length);
+    
+    if (self.mosaic_map.length === 0){
+      self.callback("mosaic map full or has no length");
+    }
+
     let bestMatch = '' //mosaic-tile name
     let bestRGB = [];
     let bestMatchDiff = -1; //diff between rgb vals
