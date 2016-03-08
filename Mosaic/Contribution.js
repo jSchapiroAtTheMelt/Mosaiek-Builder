@@ -239,10 +239,7 @@ class Contribution {
         let mosaicImageMap = JSON.parse(data);
         let mosaicMapIndex = -1;
 
-        if (mosaicImageMap.length = 100) {
-          self.callback("mosaic iamge map is full")
-          return;
-        }
+        
         console.log('looping through secondary map',data)
         for (let index in mosaicImageMap) {
           
