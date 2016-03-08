@@ -144,24 +144,33 @@ class State {
         
     }
 
-    for (let mosaicImage in self.mosaicImageMap){
-      console.log("mosaic image",self.mosaicImageMap[mosaicImage]);
-      let position = parseInt(self.mosaicImageMap[mosaicImage][0]);
-      let path = 'temp/state/mosaic_images/' + self.mosaicImageMap[mosaicImage][1].toString();
-      console.log('calling base with ',position,path);
-      
-      layerImage([getXPostion(position),getYPostion(position)],path);
-      
-    }
+    gm('temp/state/'+ self.mainMosaicID +'.jpg').size(function(err,size){
+      let width = size.width;
+      let height = size.height;
 
-    console.log('base',layerFunctions);
-
-    base().mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
-      if (err) {console.log('error while layering images',e);}
-      else {
-        console.log('final state written to temp/state/')
+      for (let mosaicImage in self.mosaicImageMap){
+        console.log("mosaic image",self.mosaicImageMap[mosaicImage]);
+        let position = parseInt(self.mosaicImageMap[mosaicImage][0]);
+        let path = 'temp/state/mosaic_images/' + self.mosaicImageMap[mosaicImage][1].toString();
+        console.log('calling base with ',position,path);
+        
+        layerImage([getXPostion(position)* width,getYPostion(position) * height],path);
+        
       }
+
+      console.log('base',layerFunctions);
+
+      base().mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
+        if (err) {console.log('error while layering images',e);}
+        else {
+          console.log('final state written to temp/state/')
+        }
+      });
+
     });
+    
+
+   
 
     /*gm()
      .in('-page', '+0+0')
