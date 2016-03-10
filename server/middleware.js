@@ -22,33 +22,30 @@ module.exports = (app) => {
   app.use(morgan('dev'));
 
   io.on('connection',function(socket){
-    console.log('socket connected!')
+    console.log('Middleware.js: Socket Connected')
     let connection = socket;
 
     socket.on('handshake',function(data){
-      console.log('handshake received')
-      //console.log('socket',connection);
-      console.log('data',data);
+      console.log('Middleware.js: Handshake Received - adding to device socket map')
+      
       let connections = mosaicRooms[data];
       
       if (connections === undefined){
         mosaicRooms[data] = [connection];
       } else {
         mosaicRooms[data].push(connection);
-        console.log('there are ' + connections.length + 'connections' + 'on ' + data);
+        
       }
-
-      console.log("connections",mosaicRooms);
+      console.log('Middleware.js: There are ' + connections.length + 'connections' + 'on ' + data);
+      
     });
     
     socket.emit('handshake',{connection:true});
-
 
   })
 
 
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
-    console.log("Retrieving mosaic_map for",req.body.object.objectId)
     let mosaicId = req.body.object.objectId 
     //let mosaicId = "448GSqKkkW"
     if (mosaicId) {
@@ -65,8 +62,6 @@ module.exports = (app) => {
       res.status(400);
       res.send('unable to make new mosaic');
     }
-   
-    
   
   })
 
@@ -81,24 +76,24 @@ module.exports = (app) => {
     let blue = req.body.object.blue;
     let rgb = [red,green,blue]; //[ 78, 66, 49 ]
 
-    console.log("MOSAIC IMAGE ")
+    console.log("Middleware.js/contribution: Mosaic Contribution ")
+    console.log("------------------------------------")
     console.log("mosaicID: ",mosaicID);
     console.log("contribution id: ",contributionID);
     console.log('contribution image data',contributionImageData.url)
     console.log("RGB: ",rgb);
+     console.log("------------------------------------")
 
     if (mosaicID && contributionID && contributionImageData && rgb.length === 3){
       
       new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data,transformedImage,stateMap){
         if (err) {
-          console.log("unable to make contribution: ",err);
+          console.log("Middleware.js/contribution: unable to make contribution: ",err);
           res.status(400);
-          res.send("unable to make contribution: " + err);
-          
+          res.send("Middleware.js/contribution: unable to make contribution: " + err);
+    
 
         } else {
-
-          console.log("data",data);
 
           let mosaicImageMap = {
             mosaic:mosaicID,
@@ -107,10 +102,10 @@ module.exports = (app) => {
             rgbImage:transformedImage
           }
 
-          console.log("new contribution made: ", mosaicImageMap);
+          console.log("Middleware.js: New contribution made: ", mosaicImageMap);
           io.emit('contribution',mosaicImageMap);
           res.status(200)
-          res.send("new contribution made")
+          res.send("New Contribution Made")
 
           new State(mosaicID,stateMap,function(){
 
