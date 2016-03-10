@@ -33,7 +33,7 @@ module.exports = (app) => {
       if (connections === undefined){
         mosaicRooms[data] = [connection];
       } else {
-        if (mosaicRooms.indexOf(connect) === -1) {
+        if (mosaicRooms.indexOf(connection) === -1) {
            mosaicRooms[data].push(connection);
         }
        
