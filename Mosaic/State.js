@@ -18,7 +18,7 @@ class State {
   constructor(mainMosaicID,mosaicImageMap,callback){
     this.mainMosaicID = mainMosaicID;
     this.mosaicImageMap = mosaicImageMap;
-
+    this.mosaicObject = null; 
     this.get_main_mosaic();
   }
 
@@ -32,7 +32,7 @@ class State {
     mosaicQuery.get(self.mainMosaicID , {
       success: function(mosaic) {
         console.log(" Mosaic Image Received: ", mosaic);
-        
+        self.mosaicObject = mosaic;
         //store image locally                 
         http.request(mosaic.get('image').url(), function(response) {                                        
           let data = new Stream();                                                    
@@ -47,6 +47,7 @@ class State {
               fs.writeFileSync('temp/state/'+ self.mainMosaicID +'.jpg', data.read());  
               
               console.log('beggining layering of mosaicImages');
+
               self.get_mosaic_images();
 
               
@@ -92,16 +93,25 @@ class State {
               try {
                 // read main mosaic image from file system.
                 fs.writeFileSync('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg', data.read());  
-                
-                console.log('Count:',count);
-                console.log('Target Count:',self.mosaicImageMap.length)
-                
-                count++;
+                gm('temp/state/'+ self.mainMosaicID +'.jpg').size(function(err,size){
+                  let width = Math.floor(size.width/10);
+                  let height = Math.floor(size.height/10);
 
-                if (count === self.mosaicImageMap.length){
-                  console.log('beggining layering of mosaicImages');
-                  self.layer_mosaic_images();
-                }
+                  gm('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg').resize(width,height).write('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg',function(){
+                    console.log('finished resizing ','temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg')
+                    console.log('Count:',count);
+                    console.log('Target Count:',self.mosaicImageMap.length)
+                    
+                    count++;
+
+                    if (count === self.mosaicImageMap.length){
+                      console.log('beggining layering of mosaicImages');
+                      self.layer_mosaic_images();
+                    }
+                  
+                  });
+                });
+
                 
               } catch (e) {
                 
@@ -130,44 +140,50 @@ class State {
     let self = this;
     let layerFunctions = [];
 
-    let base = function(){
-      return  gm().in('-page', '+0+0').in('temp/state/'+ self.mainMosaicID +'.jpg')
-    }
+    //let base =  gm().in('-page', '+0+0').in('temp/state/'+ self.mainMosaicID +'.jpg')
     
-    let layerImage = function(coords,imagePath){
+    let layerImage = function(coords,width,height){
       
-      let xCoord = "+" + coords[0].toString();
-      let yCoord = "+" + coords[1].toString();
+      let xCoord = "+" + Math.floor(getXPostion(coords).toString() * width);
+      let yCoord = "+" + Math.floor(getYPostion(coords).toString() * height);
       let coordString = xCoord + yCoord;
       
-      layerFunctions.push(".in('-page',"+coordString+").in("+imagePath+".toString())");
+      //layerFunctions.push(".in('-page',"+coordString+").in("+imagePath+".toString())");
+        
+      return coordString;
         
     }
 
     gm('temp/state/'+ self.mainMosaicID +'.jpg').size(function(err,size){
-      let width = size.width;
-      let height = size.height;
-      console.log("main mosaic height:",height)
-      console.log("main mosaic width:",width)
+      let width = size.width / 10;
+      let height = size.height / 10;
+      console.log("main mosaic width",size.width)
+      console.log("main mosaic height",size.height)
+      console.log("main mosaic cell height:",height)
+      console.log("main mosaic cellwidth:",width)
+      let count = 0;
 
       for (let mosaicImage in self.mosaicImageMap){
         console.log("mosaic image",self.mosaicImageMap[mosaicImage]);
         let position = parseInt(self.mosaicImageMap[mosaicImage][0]);
-        let path = 'temp/state/mosaic_images/' + self.mosaicImageMap[mosaicImage][1].toString();
-        console.log('calling base with ',position,path);
-        
-        layerImage([getXPostion(position)* width,getYPostion(position) * height],path);
+        let path = 'temp/state/mosaic_images/' + self.mosaicImageMap[mosaicImage][1].toString() + '.jpg';
+        console.log('calling base with ',position,layerImage(self.mosaicImageMap[mosaicImage],width,height),path);
+
+        gm().in('-page', '+0+0').in('temp/state/'+ self.mainMosaicID +'.jpg')
+        .in('-page',layerImage(self.mosaicImageMap[mosaicImage],width,height)).in(path)
+        .mosaic()
+        .write('temp/state/'+ self.mainMosaicID +'.jpg', function (err) {
+           if (err) console.log(err);
+           count ++;
+           if (count === self.mosaicImageMap.length) {
+            self.store_state_in_parse();
+           }
+        });
+
         
       }
 
-      console.log('base',layerFunctions);
-
-      base().mosaic().write('temp/state/' + self.mainMosaicID + '_state.jpg',function(err){
-        if (err) {console.log('error while layering images',e);}
-        else {
-          console.log('final state written to temp/state/')
-        }
-      });
+      console.log('done layering images');
 
     });
     
@@ -189,6 +205,10 @@ class State {
   store_state_in_parse(){
     //read from fs
     //store in parse for that mosaic id
+    if (self.mosaicObject !== null) {
+
+    }
+    
   }
 
   clean_up(){
@@ -202,11 +222,11 @@ function getPostion(){
 }
 
 function getXPostion(position){
-  return position % 10;
+  return Math.floor(parseInt(position) % 10);
 }
 
 function getYPostion(position){
-  return position/10;
+  return Math.floor(parseInt(position)/10);
 }
 
 module.exports = State;
