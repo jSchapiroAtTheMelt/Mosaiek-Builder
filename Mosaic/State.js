@@ -24,6 +24,7 @@ class State {
 
   //get main mosaic image
   get_main_mosaic(){
+    
     let Mosaic = Parse.Object.extend("Mosaic");
     let mosaicQuery = new Parse.Query(Mosaic);
     let self = this;
@@ -31,9 +32,11 @@ class State {
 
     mosaicQuery.get(self.mainMosaicID , {
       success: function(mosaic) {
-        console.log(" Mosaic Image Received: ", mosaic);
+        console.log("State.js: Successfully Retrieved Mosaic Object : ", mosaic);
         self.mosaicObject = mosaic;
-        //store image locally                 
+        
+        //retrieve mosaic image from parse
+        console.log("State.js: Retrieving Main Mosaic Image");               
         http.request(mosaic.get('image').url(), function(response) {                                        
           let data = new Stream();                                                    
 
@@ -44,9 +47,8 @@ class State {
           response.on('end', function() {                                             
             try {
               // read main mosaic image from file system.
+              console.log("State.js: Successfully retrieved Main Mosaic Image/Writing to filesystem");  
               fs.writeFileSync('temp/state/'+ self.mainMosaicID +'.jpg', data.read());  
-              
-              console.log('beggining layering of mosaicImages');
 
               self.get_mosaic_images();
 
@@ -76,10 +78,11 @@ class State {
     let self = this;
     let count = 0;
 
+    console.log("State.js: Retrieving Contribution Image Objects from Contribution Image Map")
     for (let mi in self.mosaicImageMap) {
       mosaicImageQuery.get(self.mosaicImageMap[mi][1] , {
         success: function(mosaicImage) {
-          console.log(" Mosaic Image Received: ", mosaicImage);
+          console.log("State.js: Ctonribution Mosaic Image Object Received: ", mosaicImage);
           
           //store image locally                 
           http.request(mosaicImage.get('image').url(), function(response) {                                        
@@ -91,21 +94,22 @@ class State {
 
             response.on('end', function() {                                             
               try {
-                // read main mosaic image from file system.
+                // write contribution image to file system
+                console.log("State.js: Contribution Image Recieved/Storing to filesystem")
                 fs.writeFileSync('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg', data.read());  
+                
+                console.log("State.js: Getting main mosaic size")
                 gm('temp/state/'+ self.mainMosaicID +'.jpg').size(function(err,size){
                   let width = Math.floor(size.width/10);
                   let height = Math.floor(size.height/10);
 
+                  console.log("State.js: resizing contribution image based on main mosaic size");
                   gm('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg').resize(width,height).write('temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg',function(){
-                    console.log('finished resizing ','temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg')
-                    console.log('Count:',count);
-                    console.log('Target Count:',self.mosaicImageMap.length)
+                    console.log('State.js: Finished resizing ','temp/state/mosaic_images/'+ self.mosaicImageMap[mi][1] +'.jpg')
                     
                     count++;
 
                     if (count === self.mosaicImageMap.length){
-                      console.log('beggining layering of mosaicImages');
                       self.layer_mosaic_images();
                     }
                   
@@ -126,7 +130,7 @@ class State {
 
         error: function(object, error) {
           
-          console.log('error',error)
+          console.log('State.js: error',error)
         }
       });
     }
@@ -136,38 +140,32 @@ class State {
 
   //layer all images in the mosaicImageMap into the main mosaic image
   layer_mosaic_images(){
-    console.log('State.js: layer mosaic images')
+    console.log('State.js: layering mosaic images')
     let self = this;
     let layerFunctions = [];
-
-    //let base =  gm().in('-page', '+0+0').in('temp/state/'+ self.mainMosaicID +'.jpg')
     
     let layerImage = function(coords,width,height){
       
       let xCoord = "+" + Math.floor(getXPostion(coords).toString() * width);
       let yCoord = "+" + Math.floor(getYPostion(coords).toString() * height);
       let coordString = xCoord + yCoord;
-      
-      //layerFunctions.push(".in('-page',"+coordString+").in("+imagePath+".toString())");
         
-      return coordString;
-        
+      return coordString; 
     }
 
+    console.log("State.js: Retrieving main mosaic size");
     gm('temp/state/'+ self.mainMosaicID +'.jpg').size(function(err,size){
+      console.log("State.js: Successfully retrieved main mosaic size");
       let width = size.width / 10;
       let height = size.height / 10;
-      console.log("main mosaic width",size.width)
-      console.log("main mosaic height",size.height)
-      console.log("main mosaic cell height:",height)
-      console.log("main mosaic cellwidth:",width)
+      
       let count = 0;
 
       for (let mosaicImage in self.mosaicImageMap){
-        console.log("mosaic image",self.mosaicImageMap[mosaicImage]);
         let position = parseInt(self.mosaicImageMap[mosaicImage][0]);
         let path = 'temp/state/mosaic_images/' + self.mosaicImageMap[mosaicImage][1].toString() + '.jpg';
-        console.log('calling base with ',position,layerImage(self.mosaicImageMap[mosaicImage],width,height),path);
+        
+        console.log("State.js: Layering contribution image", self.mosaicImageMap[mosaicImage][1]);
 
         gm().in('-page', '+0+0').in('temp/state/'+ self.mainMosaicID +'.jpg')
         .in('-page',layerImage(self.mosaicImageMap[mosaicImage],width,height)).in(path)
@@ -179,26 +177,13 @@ class State {
             self.store_state_in_parse();
            }
         });
-
         
       }
 
-      console.log('done layering images');
+      console.log('State.js: Done layering images');
 
     });
-    
 
-   
-
-    /*gm()
-     .in('-page', '+0+0')
-     .in('temp/state/'+ self.mainMosaicID +'.jpg')
-     .in('-page', '+10+20') // location of smallIcon.jpg is x,y -> 10, 20
-     .in('smallIcon.jpg')
-     .mosaic()
-     .write('tesOutput.jpg', function (err) {
-        if (err) console.log(err);
-     });*/
   }
 
   //store in parse in state field
