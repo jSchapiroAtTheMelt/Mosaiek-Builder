@@ -16,7 +16,7 @@ let client;
 
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
-
+// Initialize Redis Client
 if (process.env.REDISTOGO_URL) {
     
     let rtg   = require("url").parse(process.env.REDISTOGO_URL);
@@ -27,15 +27,10 @@ if (process.env.REDISTOGO_URL) {
 } else {
 
     client = require("redis").createClient();
-    console.log('here')
+    
 }
 
 class Contribution {
-  //get mosaic_map for contribution's mosaic
-  //compare avg rgb of contribution to each tile in mosaic_map
-  //determine best fit
-  //layer on top of mosaic
-  //update db
 
   constructor(main_mosaic_filename,contributed_filename,rgb,contributedImageData,callback) {
     this.main_mosaic_filename = main_mosaic_filename; //mosaic objectId
@@ -53,29 +48,31 @@ class Contribution {
   }
 
   get_mosaic_map(){
-    //read map from redis -> json parse -> store as instance property
     let self = this;
 
-
     //get mosaic map
+    console.log("Contribution.js: Retrieiving Main Mosaic Map");
     client.get(this.main_mosaic_filename,function(err,data){
+      
+      console.log("Contribution.js: Successfully retrieved Main Mosaic Map");
       
       if (err){console.log("Error while retrieving the mosaic map",err);}
       else {
 
         self.mosaic_map = JSON.parse(data);
 
-        //get cell height and width
+        //get cell height and width of tiles in main mosaic
+        console.log("Contribution.js: Retrieiving Main Mosaic Map Cell Dimensions");
         client.get(self.main_mosaic_filename + "_dimens",function(err,data){
           
           if (err){console.log("Error while getting mosaics dimens",err);}
           else {
+            console.log("Contribution.js: Successfully retrieved main mosaic map cell dimensions");
             let dimens = JSON.parse(data);
             
             self.width = dimens[0];
             self.height = dimens[1];
 
-            
             self.get_main_mosaic_image();
 
           }
@@ -85,17 +82,19 @@ class Contribution {
   
   }
 
+  //may be unecessary!!!! **********
   get_main_mosaic_image(cb){
     let Mosaic = Parse.Object.extend("Mosaic");
     let mosaicQuery = new Parse.Query(Mosaic);
     let self = this;
-    console.log("retrieiving contribution image",self.main_mosaic_filename)
 
+    console.log("Contribution.js: Retrieving Main Mosaic  Object")
     mosaicQuery.get(self.main_mosaic_filename , {
       success: function(mosaic) {
-        console.log("Contribution Mosaic Image Received: ", mosaic);
+        console.log("Contribution.js: Contribution Mosaic Object Received: ", mosaic);
         
-        //store image locally                 
+        //get image data for main mosaic object
+        console.log("Contribution.js: Retrieving Main Mosaic Image")                
         http.request(mosaic.get('image').url(), function(response) {                                        
           let data = new Stream();                                                    
 
@@ -143,7 +142,7 @@ class Contribution {
 
   resize_mosaic_image() {
     let self = this;
-    console.log("Retrieving image from", self.contributedImageData)
+    console.log("Contribution.js: Retrieving Contribution Image Data", self.contributedImageData)
     http.request(self.contributedImageData.url, function(response) {                                        
       let data = new Stream();                                                    
 
@@ -153,20 +152,21 @@ class Contribution {
 
       response.on('end', function() {                                             
         try {
-          // read main mosaic image from file system.
+          console.log("Contribution.js: Successfully retrieved contribution image data");
+          // write contribution image to file system 
+          console.log("Contribution.js: Writing Contribution Image Data to filesystem");
           fs.writeFileSync('temp/mosaic_image/'+ self.contributed_filename +'.jpg', data.read());  
           
           //get main image stats
-          console.log('done writing mosaic image to temp/mosaic_image');
-          console.log('Attempting to resize it...')
+          console.log("Contribution.js: Resizing Contribution Image");
           gm('temp/mosaic_image/'+self.contributed_filename +'.jpg').resize(self.width,self.height).write('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(){
-            console.log('finished resizing ','temp/mosaic_image/'+self.contributed_filename +'.jpg')
+            console.log("Contribution.js: Done resizing contribution image, stored to, ",'temp/mosaic_image/'+self.contributed_filename +'.jpg');
             self.match_avg_rgb();
           });
           
         } catch (e) {
           self.callback(e,null);
-          console.log("Error while getting image stats", e);
+          console.log("Contribution.js: Error while getting image stats", e);
 
         } 
 
@@ -177,10 +177,10 @@ class Contribution {
   match_avg_rgb(){
     let self = this;
     //loop through each value in mosaic map and pass to is a match
-    console.log('comparing mosaic image to mosaic map, count:',self.mosaic_map.length);
+    console.log('Contribution.js: positioning contribution image in main mosaic map');
     
     if (self.mosaic_map.length === 0){
-      self.callback("mosaic map full or has no length");
+      self.callback("Contribution.js: mosaic map has no length");
       return;
     }
 
@@ -190,7 +190,7 @@ class Contribution {
 
 
     for (let tile in self.mosaic_map){
-      //current tiles rgb
+      //main mosaic tile's rgb
       let tileRGB = self.mosaic_map[tile][1];
       let tileRed = parseInt(tileRGB[0]);
       let tileGreen = parseInt(tileRGB[1]);
@@ -211,7 +211,7 @@ class Contribution {
       //bestMatchDiff not set
       if (bestMatchDiff === -1) {
         bestMatchDiff = currentDiff;
-        bestMatch = tile;
+        bestMatch = tile; //index in main mosaic map
         bestRGB = tileRGB;
       } 
 
@@ -222,31 +222,29 @@ class Contribution {
       }
 
     }
-    console.log('current images rgb',self.rgb)
-    console.log('Best Match Diff', bestMatch)
+    console.log("Contribution.js: best rgb match: ",bestMatch,bestRGB);
     self.store_in_secondary_map(bestMatch,bestRGB);
   }
 
   store_in_secondary_map(bestMatch,bestRGB){
-    //update secondary map with m
+    //update secondary map with best match
     let self = this;
     
+    console.log("Contribution.js: Retrieving Contribution (Secondary) map");
     client.get(self.main_mosaic_filename+'_contributions',function(err,data){
-
       if (err) {
-        console.log('Error while get mosaic image contributions map', err);
+        console.log('Contribution.js: Error while get mosaic image contributions map', err);
       } else {
+        console.log("Contribution.js: Successfully retrieved Contribution Map");
         let mosaicImageMap = JSON.parse(data);
         let mosaicMapIndex = -1;
 
-        
-        console.log('looping through secondary map',data)
+        console.log("Contribution.js: Storing Best Match in Contribution Map");
         for (let index in mosaicImageMap) {
-          
-          console.log('comparing',mosaicImageMap[index][0],bestMatch)
+
           if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] !== self.contributed_filename) {
             mosaicMapIndex = index;
-            console.log('collision!')
+            console.log('Contribution.js: a collision exists, splicing from main mosaic map and recalculating')
             //remove the collision value from map and re-compute
             self.mosaic_map.splice(bestMatch,1);
             self.match_avg_rgb();
@@ -255,26 +253,19 @@ class Contribution {
 
           if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] === self.contributed_filename){
             mosaicMapIndex = index;
-            console.log('value exists')
+            console.log('Contribution.js: Value Exists Already in Contribution Map')
             return;
           }
           
         }
 
         if (mosaicMapIndex === -1) {
-          
+          console.log("Contribution.js: No collisions or repeats exist, adding to secondary map")
           mosaicImageMap.push([bestMatch,self.contributed_filename]);
           console.log('inserting',bestMatch,self.contributed_filename);
-        } else {
-          mosaicImageMap.push([bestMatch,self.contributed_filename]);
-        }
+        } 
         
-        console.log('best match',bestMatch)
-        console.log('best RGB',bestRGB)
-        console.log('sorted data',mosaicImageMap.sort(naturalSorter))
-        console.log('count',self.mosaic_map.length)
-
-        
+        console.log("Contribution.js: storing contribution map in redis")
         client.set(self.main_mosaic_filename+'_contributions',JSON.stringify(mosaicImageMap));
 
         let red = bestRGB[0];
@@ -289,30 +280,27 @@ class Contribution {
 
   transform_image(red,green,blue,bestMatch,mosaicImageMap){
     let self = this;
+    console.log("Contribution.js: transofrming rgb value of contribution image ");
     try {
       im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '80%', 'temp/mosaic_image/'+self.contributed_filename +'.jpg', 'temp/mosaic_image/'+self.contributed_filename +'.jpg'],function(err,data){
         
-        if (err){console.log('something went wrong in generating colored contribution',err)}
-        console.log('done transforming contribution to rgb value')
+        if (err){console.log('Contribution.js: something went wrong in generating colored contribution',err)}
+        console.log("Contribution.js: done transforming rgb value of contribution image");
 
         //read from file system
+        console.log("Contribution.js: retrieving contribution image from filesystem");
         fs.readFile('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(err,data){
+          console.log("Contribution.js: Successfully retrieved contribution image from file system, sending callback");
           self.callback(null,bestMatch,data.toString('base64'),mosaicImageMap)
         });
           
       });
     } catch (e) {
-      console.log("Error while transforming contribution",e);
+      console.log("Contribution.js: Error while transforming contribution",e);
     }
   }
 
-  add_to_mosaic(){
-    //socket io interaction
-  }
-
-  update_db(){
-
-  }
+  
 }
 
 function naturalSorter(as, bs){
