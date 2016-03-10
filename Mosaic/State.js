@@ -188,6 +188,7 @@ class State {
 
   //store in parse in state field
   store_state_in_parse(){
+    let self = this;
     //read from fs
     //store in parse for that mosaic id
     if (self.mosaicObject !== null) {

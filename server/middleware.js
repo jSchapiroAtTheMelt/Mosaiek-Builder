@@ -26,14 +26,17 @@ module.exports = (app) => {
     let connection = socket;
 
     socket.on('handshake',function(data){
-      console.log('Middleware.js: Handshake Received - adding to device socket map')
+      console.log('Middleware.js: Handshake Received - adding to device socket map',data)
       
       let connections = mosaicRooms[data];
       
       if (connections === undefined){
         mosaicRooms[data] = [connection];
       } else {
-        mosaicRooms[data].push(connection);
+        if (mosaicRooms.indexOf(connect) === -1) {
+           mosaicRooms[data].push(connection);
+        }
+       
         console.log('Middleware.js: There are ' + connections.length + 'connections' + 'on ' + data);
       }
       
