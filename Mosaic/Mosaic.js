@@ -26,7 +26,7 @@ if (process.env.REDISTOGO_URL) {
 } else {
 
     client = require("redis").createClient();
-    console.log('here')
+    
 }
 
 class Mosaic {

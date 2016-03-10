@@ -34,9 +34,9 @@ module.exports = (app) => {
         mosaicRooms[data] = [connection];
       } else {
         mosaicRooms[data].push(connection);
-        
+        console.log('Middleware.js: There are ' + connections.length + 'connections' + 'on ' + data);
       }
-      console.log('Middleware.js: There are ' + connections.length + 'connections' + 'on ' + data);
+      
       
     });
     

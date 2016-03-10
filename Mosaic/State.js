@@ -202,9 +202,6 @@ class State {
 
 }
 
-function getPostion(){
-
-}
 
 function getXPostion(position){
   return Math.floor(parseInt(position) % 10);
