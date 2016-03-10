@@ -15,6 +15,7 @@ let client;
 Parse.initialize("OEzxa2mIkW4tFTVqCG9aQK5Jbq61KMK04OFILa8s", "6UJgthU7d1tG2KTJevtp3Pn08rbAQ51IAYzT8HEi");
 
 //initialize redis
+console.log("Mosaic.js: Initializing Redis")
 if (process.env.REDISTOGO_URL) {
     
     let rtg   = require("url").parse(process.env.REDISTOGO_URL);
@@ -29,7 +30,6 @@ if (process.env.REDISTOGO_URL) {
 }
 
 class Mosaic {
-
 
   constructor(input_filename,rows,columns,gen_thumbs,callback) {
     //private vars
@@ -62,21 +62,23 @@ class Mosaic {
 
   prepare() {
 
-    //1) connect to Parse
+    // connect to Parse
   
       let Mosaic = Parse.Object.extend("Mosaic");
       let mosaicQuery = new Parse.Query(Mosaic);
       let self = this;
 
-      
-      console.log('Mosaic does not exist in Redis...Retrieving image from Parse');
+      // retrieve main mosaic object from parse
+      console.log('Mosaic.js: Retrieving main mosaic object from Parse');
       mosaicQuery.get(this.input_filename , {
         success: function(mosaic) {
+          console.log('Mosaic.js: Successfully retrieved mosaic object from parse')
           console.dir(mosaic.get('image').name());
           
           self.input.image = mosaic.get('image').url();
           
-          //store image locally                 
+          //retrieve image data by using mosaic object image url
+          console.log('Mosaic.js: Retrieving main mosaic image from mosaic object image url')                
           http.request(self.input.image, function(response) {                                        
             let data = new Stream();                                                    
 
@@ -86,39 +88,41 @@ class Mosaic {
 
             response.on('end', function() {                                             
               try {
-                // read main mosaic image from file system.
+                console.log('Mosaic.js: Successfully received main mosaic image data')
+                // write main mosaic image to filesystem
                 fs.writeFileSync('temp/'+ self.input_filename +'.jpg', data.read());  
-                
+                console.log('Mosaic.js: writing main mosaic image to file system at: ', 'temp/'+ self.input_filename +'.jpg')
+
+                //create directory for the main mosaic image tiles
+                console.log("Mosaic.js: Creating temp directory for main mosaic image tiles")
                 mkdirp('/tmp/mosaic_tiles', function(err) { 
+
+                  console.log("Mosaic.js: Successfully created temp directory for main mosaic image tiles")
+                  
+                  //analyze size of main mosaic image
+                  console.log("Mosaic.js: Gather size stats about main mosaic image")
                   gm('temp/'+self.input_filename+'.jpg')
                   .size(function (err, size) {
-                    
+                     console.log("Mosaic.js: Successfully gathered main mosaic image size stats")
                     if (!err) {
 
-                      console.log('width = ' + size.width);
-                      console.log('height = ' + size.height);
+                      console.log('Mosaic.js: Main Mosaic Width = ' + size.width);
+                      console.log('Mosaic.js: Main Mosaic Height = ' + size.height);
                       self.input.width = size.width;
                       self.input.height = size.height;
-
-                      
-                      if (self.input.width % self.columns){
-                        console.log('width not a multiple of columns')
-                      }
-
-                      if (self.input.height % self.rows){
-                        console.log('height not a multiple of rows')
-                      }
 
                       //set the dimensions of a main mosaic cell
                       self.cell.width = self.input.width / self.columns;
                       self.cell.height = self.input.height / self.rows;
                       
-                      console.log('width',self.cell.width);
-                      console.log('height',self.cell.height);
+                      console.log('Mosaic.js: Main Mosaic Cell Width',self.cell.width);
+                      console.log('Mosaic.js: Main Mosaic Cell Height',self.cell.height);
 
-                      //convert into grid - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
+                      //convert into grid based on main mosaic cell width - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
+                      console.log("Mosaic.js: Converting main mosaic image into equal sized cells")
                       im.convert(['temp/'+self.input_filename+'.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'temp/mosaic_tiles/mosaic.jpg'], function(err,data) {
                           if(err) { throw err; }
+                          console.log("Mosaic.js: Successfully created cells from main mosaic image")
                           self.gen_mosaic_map();
                             
                       });
@@ -166,19 +170,21 @@ class Mosaic {
     
     try {
       //read all tiles in ./mosaic_tiles to mosaicImages variable
+      console.log("Mosaic.js: Reading all tiles from ",mosaicTilesDir);
       fs.readdir(mosaicTilesDir,function(err,mosaicImages){
-        
+        console.log("Mosaic.js: Successfully read all tiles from", mosaicTilesDir);
         let count = 0;
         if (err) {
           self.callback(err,null);
-          console.log('Error while reading mosaic tiles from  temp/mosaic_tiles',err)
+          console.log('Mosaic.js: Error while reading mosaic tiles from  temp/mosaic_tiles',err)
         }
 
         //get average rgb value of each mosaic tile and store in mosaic_map
         //https://github.com/aheckmann/gm/issues/42
         let counter = 0;
         let i = 0;
-        let chunkSize = 50; // 100 was too many. Choked every time at 80 or 81.
+        let chunkSize = 50; 
+        console.log("Mosaic.js: Gathering average rgb value for each main mosaic tile")
         (function loop(i){
           
           self.gen_avg_rgb(mosaicImages[i],i,mosaicImages.length,counter,function(rgbString,index,image){
@@ -186,17 +192,18 @@ class Mosaic {
              self.mosaic_map.push([image,rgbString])
              counter++;
              if (counter == mosaicImages.length-1){
+                console.log("Mosaic.js: Successfully found rgb value for each mosaic tile");
                 
-                //trim the fat
+                //trim the fat - excess tiles that are not the dimensions of the main mosaic cell
                 if (self.mosaic_map.length > self.rows * self.columns) self.mosaic_map = self.mosaic_map.slice(0, self.rows * self.columns);
 
-                //clear existing ref
+                //clear existing ref - only useful when testing on the same mosaic
                 client.del(self.input_filename);
                 client.del(self.input_filename+'_contributions');
                 client.del(self.input_filename+'_dimens');
                 client.del(self.input_filename + '_width_height');
 
-                console.log('done finding average rgb value for each mosaict tile')
+                console.log("Mosaic.js: Storing main mosaic map in Redis")
                 
                 client.set(self.input_filename,JSON.stringify(self.mosaic_map)); // Store Mosaic Map in Redis
                 client.set(self.input_filename+'_contributions',JSON.stringify([]));//mosaic images
@@ -204,15 +211,13 @@ class Mosaic {
                 client.set(self.input_filename + '_width_height',JSON.stringify([self.input.width,self.input.height]));
                 
                 //remove all files in /mosaic_tiles
-
+                console.log("Mosaic.js: Removing the contents of temp/mosaic_tiles")
                 remove('temp/mosaic_tiles/',function(){ //removes entire directory
-                  console.log('clearing out temp directory')
+                  console.log("Mosaic.js: Successfully removed the contents of temp/mosaic_tiles");
                   fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty
                 })
+
                 self.callback(null,self.mosaic_map)
-
-                
-
 
                 //self.gen_initial_mosaic(); saving this for a rainy day
              }
@@ -244,7 +249,6 @@ class Mosaic {
           if (data) {
             let tempArray = data.split(/\(([^)]+)\)/);
             let rgbString = tempArray[3].split(',');
-            console.log('tempArray',rgbString)
             callback(rgbString,mapIndex,image);
             
           }
@@ -256,6 +260,7 @@ class Mosaic {
     }
   }
 
+  /*
   gen_initial_mosaic() {
     console.log('genearting intial mosaic....')
     let self = this;
@@ -310,8 +315,9 @@ class Mosaic {
       console.log("Error while resizing main mosaic image",e);
     }
     
-  }
+  } */
 
+/*
   merge_colored_tiles() {
     
     let self = this;
@@ -350,7 +356,7 @@ class Mosaic {
       //send across the wire to iOs
     });
     
-  }
+  }*/
 
 }
 
