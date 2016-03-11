@@ -60,6 +60,7 @@ class Mosaic {
       
       if (data) {
         console.log("Mosaic.js: mosaic map already exists, returning");
+        self.callback("mosaic map already exists",null);
         return;
       } else {
 

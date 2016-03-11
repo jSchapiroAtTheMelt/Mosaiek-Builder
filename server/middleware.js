@@ -71,7 +71,7 @@ module.exports = (app) => {
           res.send('new mosaic map made')
         } else {
           res.status(400)
-          res.send('unable to make new contribution')
+          res.send('unable to make new contribution', err)
         }
       });
     } else {
