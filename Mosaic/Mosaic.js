@@ -64,7 +64,7 @@ class Mosaic {
         console.log("Mosaic.js: creating new mosaic map")
         self.prepare();
       }
-    }
+    });
 
     
         
