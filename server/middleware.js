@@ -123,9 +123,10 @@ module.exports = (app) => {
           res.status(200)
           res.send("New Contribution Made")
 
+          /* Abandoning server side state for now
           new State(mosaicID,stateMap,function(){
 
-          });
+          });*/
 
         }
 
