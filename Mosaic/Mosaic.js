@@ -57,13 +57,17 @@ class Mosaic {
     let self = this;
 
     client.get(this.input_filename,function(err,data){
+      
       if (data) {
-        console.log("Mosaic.js: mosaic map already exists, returning")
+        console.log("Mosaic.js: mosaic map already exists, returning");
         return;
       } else {
-        console.log("Mosaic.js: creating new mosaic map")
+
+        console.log("Mosaic.js: creating new mosaic map");
+        
         self.prepare();
       }
+    
     });
 
     
