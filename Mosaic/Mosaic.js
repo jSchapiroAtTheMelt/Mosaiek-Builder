@@ -215,7 +215,11 @@ class Mosaic {
                 console.log("Mosaic.js: Removing the contents of temp/mosaic_tiles")
                 remove('temp/mosaic_tiles/',function(){ //removes entire directory
                   console.log("Mosaic.js: Successfully removed the contents of temp/mosaic_tiles");
-                  fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty
+                  try {
+                    fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty
+                  } catch (e) {
+                    console.log("Mosaic.js: Error while recreating temp/mosaic_tiles",e)
+                  }
                 })
 
                 self.callback(null,self.mosaic_map)
