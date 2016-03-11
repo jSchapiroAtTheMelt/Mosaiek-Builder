@@ -29,6 +29,7 @@ module.exports = (app) => {
       console.log('Middleware.js: Handshake Received - adding to device socket map',data)
       
       let connections = mosaicRooms[data];
+      console.log("Middleware.js: connections ",connections);
       
       if (connections === undefined){
         mosaicRooms[data] = [connection];
@@ -38,9 +39,20 @@ module.exports = (app) => {
         }
        
         console.log('Middleware.js: There are ' + connections.length + 'connections' + 'on ' + data);
+        console.log('Middleware.js: Room: ',data);
+        console.log('Middleware.js: Connections: ',mosaicRooms[data]);
       }
       
       
+    });
+
+    socket.on('disconnect',function(data){
+      //remove socket from mosaicrooms
+      let currentConnections = mosaicRooms[data];
+      let roomIndex = mosaicRooms[data].indexOf(socket);
+      mosaicRooms[data].splice(roomIndex,1);
+
+      socket.disconnect();
     });
     
     socket.emit('handshake',{connection:true});
