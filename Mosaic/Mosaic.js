@@ -184,7 +184,8 @@ class Mosaic {
         let counter = 0;
         let i = 0;
         let chunkSize = 50; 
-        console.log("Mosaic.js: Gathering average rgb value for each main mosaic tile")
+        console.log("Mosaic.js: Gathering average rgb value for each main mosaic tile");
+        
         (function loop(i){
           
           self.gen_avg_rgb(mosaicImages[i],i,mosaicImages.length,counter,function(rgbString,index,image){
@@ -203,7 +204,7 @@ class Mosaic {
                 client.del(self.input_filename+'_dimens');
                 client.del(self.input_filename + '_width_height');
 
-                console.log("Mosaic.js: Storing main mosaic map in Redis")
+                console.log("Mosaic.js: Storing main mosaic map in Redis");
                 
                 client.set(self.input_filename,JSON.stringify(self.mosaic_map)); // Store Mosaic Map in Redis
                 client.set(self.input_filename+'_contributions',JSON.stringify([]));//mosaic images
