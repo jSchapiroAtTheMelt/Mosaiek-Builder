@@ -33,6 +33,7 @@ module.exports = (app) => {
       
       if (connections === undefined){
         mosaicRooms[data] = [connection];
+        console.log("Middleware.js: First connection to room ", data);
       } else {
         if (data in mosaicRooms) {
            mosaicRooms[data].push(connection);
@@ -48,10 +49,10 @@ module.exports = (app) => {
 
     socket.on('disconnect',function(data){
       //remove socket from mosaicrooms
-      let currentConnections = mosaicRooms[data];
       let roomIndex = mosaicRooms[data].indexOf(socket);
       mosaicRooms[data].splice(roomIndex,1);
 
+      console.log("Middleware.js: Disconnecting from room ",data);
       socket.disconnect();
     });
     
