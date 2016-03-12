@@ -141,6 +141,7 @@ module.exports = (app) => {
 
           if (roomsToEmit !== undefined){
             for (let room in roomsToEmit){
+              console.log("emmitting to ", room.id);
               io.to(room.id).emit('contribution', mosaicImageMap);
             }
           }
