@@ -140,7 +140,7 @@ module.exports = (app) => {
           let roomsToEmit = mosaicRooms[mosaicID];
 
           if (roomsToEmit !== undefined){
-            for (room in roomsToEmit){
+            for (let room in roomsToEmit){
               io.to(room.id).emit('contribution', mosaicImageMap);
             }
           }
