@@ -56,7 +56,7 @@ module.exports = (app) => {
        
         console.log('Middleware.js: There are ' + connections.length + 'connections' + 'on ' + data);
         console.log('Middleware.js: Room: ',data);
-        console.log('Middleware.js: Connections: ',mosaicRooms[data]);
+        //console.log('Middleware.js: Connections: ',mosaicRooms[data]);
       }
       
       
@@ -136,7 +136,16 @@ module.exports = (app) => {
           }
 
           console.log("Middleware.js: New contribution made: ", mosaicImageMap);
-          io.emit('contribution',mosaicImageMap);
+          
+          let roomsToEmit = mosaicRooms[mosaicID];
+
+          if (roomsToEmit !== undefined){
+            for (room in roomsToEmit){
+              io.to(room.id).emit('contribution', mosaicImageMap);
+            }
+          }
+
+          //io.emit('contribution',mosaicImageMap);
           res.status(200)
           res.send("New Contribution Made")
 
