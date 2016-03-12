@@ -265,8 +265,8 @@ class Contribution {
           console.log('inserting',bestMatch,self.contributed_filename);
         } 
         
-        console.log("Contribution.js: storing contribution map in redis")
-        client.set(self.main_mosaic_filename+'_contributions',JSON.stringify(mosaicImageMap));
+        //console.log("Contribution.js: storing contribution map in redis")
+        //client.set(self.main_mosaic_filename+'_contributions',JSON.stringify(mosaicImageMap));
 
         let red = bestRGB[0];
         let green = bestRGB[1];

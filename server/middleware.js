@@ -6,6 +6,7 @@ let Parse = ParseCloud.Parse;
 let Mosaic = require('../Mosaic/Mosaic.js');
 let Contribution = require('../Mosaic/Contribution.js');
 let State = require('../Mosaic/State.js');
+let client;
 
 
 module.exports = (app) => {
@@ -20,6 +21,20 @@ module.exports = (app) => {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(morgan('dev'));
+
+  // Initialize Redis Client
+  if (process.env.REDISTOGO_URL) {
+      
+      let rtg   = require("url").parse(process.env.REDISTOGO_URL);
+      client = require("redis").createClient(rtg.port, rtg.hostname);
+
+      client.auth(rtg.auth.split(":")[1]);
+
+  } else {
+
+      client = require("redis").createClient();
+      
+  }
 
   io.on('connection',function(socket){
     console.log('Middleware.js: Socket Connected')
@@ -49,11 +64,13 @@ module.exports = (app) => {
 
     socket.on('disconnect',function(data){
       //remove socket from mosaicrooms
-      let roomIndex = mosaicRooms[data].indexOf(socket);
-      mosaicRooms[data].splice(roomIndex,1);
+      if (mosaicRooms[data] !== undefined) {
+        let roomIndex = mosaicRooms[data].indexOf(socket);
+        mosaicRooms[data].splice(roomIndex,1);
 
-      console.log("Middleware.js: Disconnecting from room ",data);
-      socket.disconnect();
+        console.log("Middleware.js: Disconnecting from room ",data);
+        socket.disconnect();
+      }
     });
     
     socket.emit('handshake',{connection:true});
@@ -107,7 +124,7 @@ module.exports = (app) => {
           console.log("Middleware.js/contribution: unable to make contribution: ",err);
           res.status(400);
           res.send("Middleware.js/contribution: unable to make contribution: " + err);
-    
+          io.emit('error',err);
 
         } else {
 
@@ -123,6 +140,10 @@ module.exports = (app) => {
           res.status(200)
           res.send("New Contribution Made")
 
+          //save stateMap to redis
+          console.log("Middleware.js: saving mosaic image contribution map to redis for ", mosaicID);
+          client.set(mosaicID+'_contributions',JSON.stringify(stateMap));
+          
           /* Abandoning server side state for now
           new State(mosaicID,stateMap,function(){
 

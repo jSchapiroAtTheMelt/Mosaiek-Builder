@@ -231,12 +231,9 @@ class Mosaic {
                 remove('temp/mosaic_tiles/',function(){ //removes entire directory
                   console.log("Mosaic.js: Successfully removed the contents of temp/mosaic_tiles");
                   try {
-                    stats = fs.lstatSync('temp/mosaic_tiles');
-
-                    // Is it a directory?
-                    if (!stats.isDirectory()) {
+                    
                       fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty 
-                    }
+                    
                     
                   } catch (e) {
                     console.log("Mosaic.js: Error while recreating temp/mosaic_tiles",e)
