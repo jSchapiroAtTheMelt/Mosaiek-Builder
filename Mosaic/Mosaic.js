@@ -389,10 +389,13 @@ class Mosaic {
 
 }
 
-
-
-
 function naturalSorter(as, bs){
+  as = as[0];
+  bs = bs[0];
+
+    if (!as || !bs) {
+      return 0;
+    }
     var a, b, a1, b1, i= 0, n, L,
     rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
     if(as=== bs) return 0;
@@ -411,5 +414,8 @@ function naturalSorter(as, bs){
     }
     return b[i]? -1:0;
 }
+
+
+
 
 module.exports = Mosaic;
