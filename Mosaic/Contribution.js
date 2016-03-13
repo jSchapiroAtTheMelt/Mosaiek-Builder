@@ -184,6 +184,8 @@ class Contribution {
       return;
     }
 
+    console.log("Contribution.js: Mosaic Map", self.mosaic_map);
+
     let bestMatch = '' //mosaic-tile name
     let bestRGB = [];
     let bestMatchDiff = -1; //diff between rgb vals
