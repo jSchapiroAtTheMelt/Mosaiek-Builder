@@ -276,7 +276,7 @@ class Mosaic {
               let rgbString = tempArray[3].split(',');
               callback(rgbString,mapIndex,image);
             } else {
-              let rgbString = tempArray[0].split(',');
+              let rgbString = tempArray[2].split(',');
               callback(rgbString,mapIndex,image);
             }
             
