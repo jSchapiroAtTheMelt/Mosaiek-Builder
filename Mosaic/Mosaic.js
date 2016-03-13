@@ -271,10 +271,11 @@ class Mosaic {
         fs.readFile('temp/mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
           if (data) {
             let tempArray = data.split(/\(([^)]+)\)/);
+            console.log('Mosaic.js: Temp Array: ',tempArray);
             if (tempArray[3] !== undefined){
               let rgbString = tempArray[3].split(',');
               callback(rgbString,mapIndex,image);
-            }
+            } 
             
           }
           
