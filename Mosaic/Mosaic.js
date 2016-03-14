@@ -275,8 +275,11 @@ class Mosaic {
             if (tempArray[3] !== undefined){
               let rgbString = tempArray[3].split(',');
               callback(rgbString,mapIndex,image);
-            } else {
+            } else if (tempArray[2]!== undefined && tempArray[2].length === 3){
               let rgbString = tempArray[2].split(',');
+              callback(rgbString,mapIndex,image);
+            } else {
+              let rgbString = tempArray[1].split(',');
               callback(rgbString,mapIndex,image);
             }
             
