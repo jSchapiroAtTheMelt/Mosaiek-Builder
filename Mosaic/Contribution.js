@@ -213,13 +213,13 @@ class Contribution {
       //bestMatchDiff not set
       if (bestMatchDiff === -1) {
         bestMatchDiff = currentDiff;
-        bestMatch = tile; //index in main mosaic map
+        bestMatch = self.mosaic_map[tile][0]; //index in main mosaic map
         bestRGB = tileRGB;
       } 
 
       if (currentDiff < bestMatchDiff) {
         bestMatchDiff = currentDiff;
-        bestMatch = tile;
+        bestMatch = self.mosaic_map[tile][0];
         bestRGB = tileRGB;
       }
 
