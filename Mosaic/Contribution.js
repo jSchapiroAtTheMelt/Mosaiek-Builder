@@ -248,7 +248,8 @@ class Contribution {
             mosaicMapIndex = index;
             console.log('Contribution.js: a collision exists, splicing from main mosaic map and recalculating')
             //remove the collision value from map and re-compute
-            self.mosaic_map.splice(bestMatch,1);
+            let indexToRemove = self.mosaic_map.indexOf(bestMatch);
+            self.mosaic_map.splice(indexToRemove,1);
             self.match_avg_rgb();
             return;
           } 
