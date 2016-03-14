@@ -127,7 +127,7 @@ module.exports = (app) => {
           io.emit('error',err);
 
         } else {
-          data = data.match(/\d/g);
+          data = data.match(/\d/g).join("");
 
           let mosaicImageMap = {
             mosaic:mosaicID,
