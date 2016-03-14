@@ -161,7 +161,7 @@ class Contribution {
           console.log("Contribution.js: Resizing Contribution Image");
           gm('temp/mosaic_image/'+self.contributed_filename +'.jpg').resize(self.width,self.height).write('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(){
             console.log("Contribution.js: Done resizing contribution image, stored to, ",'temp/mosaic_image/'+self.contributed_filename +'.jpg');
-            self.match_avg_rgb();
+            self.match_avg_rgb(self.mosaic_map);
           });
           
         } catch (e) {
@@ -174,7 +174,7 @@ class Contribution {
     }).end();
   }
 
-  match_avg_rgb(){
+  match_avg_rgb(main_mosaic_map){
     let self = this;
     //loop through each value in mosaic map and pass to is a match
     console.log('Contribution.js: positioning contribution image in main mosaic map');
@@ -184,16 +184,16 @@ class Contribution {
       return;
     }
 
-    console.log("Contribution.js: Mosaic Map", self.mosaic_map);
+    console.log("Contribution.js: Mosaic Map", main_mosaic_map);
 
     let bestMatch = '' //mosaic-tile name
     let bestRGB = [];
     let bestMatchDiff = -1; //diff between rgb vals
 
 
-    for (let tile in self.mosaic_map){
+    for (let tile in main_mosaic_map){
       //main mosaic tile's rgb
-      let tileRGB = self.mosaic_map[tile][1];
+      let tileRGB = main_mosaic_map[tile][1];
       let tileRed = parseInt(tileRGB[0]);
       let tileGreen = parseInt(tileRGB[1]);
       let tileBlue = parseInt(tileRGB[2]);
@@ -213,22 +213,22 @@ class Contribution {
       //bestMatchDiff not set
       if (bestMatchDiff === -1) {
         bestMatchDiff = currentDiff;
-        bestMatch = self.mosaic_map[tile][0]; //index in main mosaic map
+        bestMatch = main_mosaic_map[tile][0]; //index in main mosaic map
         bestRGB = tileRGB;
       } 
 
       if (currentDiff < bestMatchDiff) {
         bestMatchDiff = currentDiff;
-        bestMatch = self.mosaic_map[tile][0];
+        bestMatch = main_mosaic_map[tile][0];
         bestRGB = tileRGB;
       }
 
     }
     console.log("Contribution.js: best rgb match: ",bestMatch,bestRGB);
-    self.store_in_secondary_map(bestMatch,bestRGB);
+    self.store_in_secondary_map(bestMatch,bestRGB,main_mosaic_map);
   }
 
-  store_in_secondary_map(bestMatch,bestRGB){
+  store_in_secondary_map(bestMatch,bestRGB,main_mosaic_map){
     //update secondary map with best match
     let self = this;
     
@@ -249,8 +249,10 @@ class Contribution {
             console.log('Contribution.js: a collision exists, splicing from main mosaic map and recalculating')
             //remove the collision value from map and re-compute
             let indexToRemove = self.mosaic_map.indexOf(bestMatch);
-            self.mosaic_map.splice(indexToRemove,1);
-            self.match_avg_rgb();
+            //self.mosaic_map.splice(indexToRemove,1);
+            let mosaic_map = main_mosaic_map;
+            mosaic_map = mosaic_map.splice(indexToRemove,1);
+            self.match_avg_rgb(mosaic_map);
             return;
           } 
 
