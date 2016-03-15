@@ -248,18 +248,21 @@ class Contribution {
             mosaicMapIndex = index;
             console.log('Contribution.js: a collision exists, splicing from main mosaic map and recalculating')
             //remove the collision value from map and re-compute
-            let indexToRemove = self.mosaic_map.indexOf(bestMatch);
-            //self.mosaic_map.splice(indexToRemove,1);
+            let indexToRemove = indexOfBestMatch(main_mosaic_map,bestMatch);//self.mosaic_map.indexOf(bestMatch);
+            console.log('Contribution.js: Removing at index: ',indexToRemove)
             let mosaic_map = main_mosaic_map;
-            mosaic_map = mosaic_map.splice(indexToRemove,1);
-            self.match_avg_rgb(mosaic_map);
-            return;
+            if (indexToRemove > -1){
+              mosaic_map = mosaic_map.splice(indexToRemove,1);
+              self.match_avg_rgb(mosaic_map);
+            }
+            
+            break;
           } 
 
           if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] === self.contributed_filename){
             mosaicMapIndex = index;
             console.log('Contribution.js: Value Exists Already in Contribution Map')
-            return;
+            break;
           }
           
         }
@@ -332,6 +335,19 @@ function naturalSorter(as, bs){
         }
     }
     return b[i]? -1:0;
+}
+
+function indexOfBestMatch(mosaic_map,bestMatch){
+  let index = -1;
+
+  for (let map in mosaic_map){
+    if (mosaic_map[map][0] == bestMatch){
+      index = map;
+      break;
+    }
+  }
+
+  return index;
 }
 
 module.exports = Contribution;
