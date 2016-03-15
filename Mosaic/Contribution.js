@@ -256,13 +256,13 @@ class Contribution {
               self.match_avg_rgb(mosaic_map);
             }
             
-            break;
+            return;
           } 
 
           if (mosaicImageMap[index][0] === bestMatch && mosaicImageMap[index][1] === self.contributed_filename){
             mosaicMapIndex = index;
             console.log('Contribution.js: Value Exists Already in Contribution Map')
-            break;
+            return;
           }
           
         }
