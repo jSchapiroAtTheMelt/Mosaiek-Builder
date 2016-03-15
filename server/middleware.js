@@ -36,6 +36,10 @@ module.exports = (app) => {
       
   }
 
+  io.sockets.sockets.forEach(function(s) {
+      s.disconnect(true);
+  });
+
   io.on('connection',function(socket){
     console.log('Middleware.js: Socket Connected')
     let connection = socket;

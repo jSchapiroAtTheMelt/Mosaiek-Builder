@@ -253,6 +253,7 @@ class Contribution {
             
             if (indexToRemove > -1){
               self.mosaic_map = self.mosaic_map.splice(indexToRemove,1);
+              console.log("Contribution.js: Map after removing: ",self.mosaic_map);
               self.match_avg_rgb(self.mosaic_map);
             }
             
