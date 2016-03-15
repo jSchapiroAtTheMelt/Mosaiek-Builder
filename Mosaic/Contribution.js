@@ -184,7 +184,8 @@ class Contribution {
       return;
     }
 
-    console.log("Contribution.js: Mosaic Map", self.mosaic_map);
+    console.log("Contribution.js: Mosaic Map is Array: ", Array.isArray(self.mosaic_map));
+    console.log("Contribution.js: Mosaic Map",self.mosaic_map);
 
     let bestMatch = '' //mosaic-tile name
     let bestRGB = [];
@@ -253,7 +254,7 @@ class Contribution {
             
             if (indexToRemove > -1){
               self.mosaic_map = self.mosaic_map.splice(indexToRemove,1);
-              console.log("Contribution.js: Map after removing: ",JSON.parse(self.mosaic_map));
+              console.log("Contribution.js: Map after removing: ",self.mosaic_map);
               self.match_avg_rgb(self.mosaic_map);
             }
             
