@@ -44,7 +44,7 @@ module.exports = (app) => {
       console.log('Middleware.js: Handshake Received - adding to device socket map',data)
       
       let connections = mosaicRooms[data];
-      console.log("Middleware.js: connections ",connections);
+      console.log("Middleware.js: connections ");
       
       if (connections === undefined){
         mosaicRooms[data] = [connection];
