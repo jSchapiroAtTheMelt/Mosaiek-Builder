@@ -74,6 +74,10 @@ module.exports = (app) => {
 
     socket.on('disconnect',function(data){
       //remove socket from mosaicrooms
+      if (connectedSockets.indexOf(socket) > -1) {
+        let socketIndex = connectedSockets.indexOf(socket);
+        connectedSockets.splice(socketIndex,1);
+      }
       if (mosaicRooms[data] !== undefined) {
         let roomIndex = mosaicRooms[data].indexOf(socket);
         mosaicRooms[data].splice(roomIndex,1);

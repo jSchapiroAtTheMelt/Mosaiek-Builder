@@ -38,6 +38,7 @@ class Mosaic {
     this.thumbs = [];
     this.matrix = [];
     this.output;
+    this.total_cells = rows * columns;
     this.mosaic_map = [];
     
     
