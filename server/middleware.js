@@ -15,6 +15,7 @@ module.exports = (app) => {
   let io = require('socket.io')(server);
   let port = process.env.PORT || 5000
   let mosaicRooms = {}; //{mosaicID:[socket1,socket2]}
+  let connectedSockets = [];
 
   server.listen(port); 
 
@@ -36,13 +37,18 @@ module.exports = (app) => {
       
   }
 
-  for (var i = 0; i < io.sockets.sockets.length; i++){
-    io.sockets.sockets[i].disconnect(true);
-  }
 
   io.on('connection',function(socket){
     console.log('Middleware.js: Socket Connected')
     let connection = socket;
+
+    if (connectedSockets.indexOf(socket.id) > -1){
+      console.log("Middleware.js: Socket already connected, disconnecting ",socket.id)
+      socket.disconnect();
+    } else {
+      console.log("Middleware.js: Socket: " + socket.id + "added to socket connections array")
+      connectedSockets.push(socket.id);
+    }
 
     socket.on('handshake',function(data){
       console.log('Middleware.js: Handshake Received - adding to device socket map',data)
