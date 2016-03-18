@@ -133,7 +133,7 @@ module.exports = (app) => {
 
     if (mosaicID && contributionID && contributionImageData && rgb.length === 3){
       
-      new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data,transformedImage,stateMap){
+      new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data,transformedImage,stateMap,complete){
         if (err) {
           console.log("Middleware.js/contribution: unable to make contribution: ",err);
           res.status(400);
@@ -156,19 +156,20 @@ module.exports = (app) => {
 
           if (roomsToEmit !== undefined){
             for (let room in roomsToEmit){
-              //console.log("emmitting to ", roomsToEmit[room]);
+            
               roomsToEmit[room].emit('contribution', mosaicImageMap);
             }
           }
 
           //io.emit('contribution',mosaicImageMap);
-          res.status(200)
-          res.send("New Contribution Made")
-
-          //save stateMap to redis
-          console.log("Middleware.js: saving mosaic image contribution map to redis for ", mosaicID);
-          client.set(mosaicID+'_contributions',JSON.stringify(stateMap));
+          if (complete){
+            res.status(200)
+            res.send("New Contribution Made")
+            console.log("Middleware.js: saving mosaic image contribution map to redis for ", mosaicID);
+            client.set(mosaicID+'_contributions',JSON.stringify(stateMap));
+          }
           
+        
           /* Abandoning server side state for now
           new State(mosaicID,stateMap,function(){
 

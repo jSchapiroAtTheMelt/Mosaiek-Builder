@@ -174,6 +174,100 @@ class Contribution {
     }).end();
   }
 
+
+  contribute_to_mosaic(){
+    let self = this;
+     client.get(self.main_mosaic_filename+'_contributions',function(err,data){
+        if (err){console.log('Contribution.js: Error while retrieving secondary map',err)}
+        else{
+          let secondary_map = JSON.parse(data);
+          //if first contribution
+          //mosaic image rgb
+          let imageRGB = self.rgb;
+          let imageRed = self.rgb[0];
+          let imageGreen = self.rgb[1];
+          let imageBlue = self.rgb[2];
+
+            if (secondary_map.length === 0){
+              //for every value in the main mosaic map
+
+              for (let tile in self.mosaic_map){
+                //main mosaic tile's rgb
+                let tileRGB = self.mosaic_map[tile][1];
+                let tileRed = parseInt(tileRGB[0]);
+                let tileGreen = parseInt(tileRGB[1]);
+                let tileBlue = parseInt(tileRGB[2]);
+
+                //RGB Diffs
+                let redDiff = Math.abs(tileRed - imageRed);
+                let greenDiff = Math.abs(tileGreen - imageGreen);
+                let blueDiff = Math.abs(tileBlue - imageBlue); 
+                
+                let currentDiff = redDiff + greenDiff + blueDiff;
+                //add entry to secondary map with main mosaic tiles name | m tile rgb | contr image name | contr rgb diff
+                secondary_map.push([self.mosaic_map[tile][0],self.mosaic_map[tile][1],self.contributed_filename,currentDiff])
+              
+                let counter = 0;
+                let i = 0;
+                let chunkSize = 50; 
+                console.log("Contribution.js: Transforming 40x40 mosaic for the first time");
+                
+              }
+
+              (function loop(i){
+                let imageRGB = secondary_map[i][1];
+                let imageName = secondary_map[i][0];
+                
+                if (i !== secondary_map.length){
+                  self.transform_image(imageRGB[0],imageRGB[1],imageRGB[2],imageName,secondary_map,true)
+                } else {
+                  self.transform_image(imageRGB[0],imageRGB[1],imageRGB[2],imageName,secondary_map,false)
+                }
+
+                i++;
+                if(i == secondary_map.length) return; // we're done.
+                if(i%chunkSize == 0){
+                  setTimeout(function(){ loop(i); }, 50);
+                } else {
+                  loop(i);
+                }
+              })(0);
+
+            } else {
+              
+              //for every value in secondary map
+              for (let tile in secondary_map){
+
+                //main mosaic tile's rgb
+                let tileRGB = self.secondary_map[tile][1];
+                let tileRed = parseInt(tileRGB[0]);
+                let tileGreen = parseInt(tileRGB[1]);
+                let tileBlue = parseInt(tileRGB[2]);
+
+                //RGB Diffs
+                let redDiff = Math.abs(tileRed - imageRed);
+                let greenDiff = Math.abs(tileGreen - imageGreen);
+                let blueDiff = Math.abs(tileBlue - imageBlue); 
+                
+                let currentDiff = redDiff + greenDiff + blueDiff;
+                
+                if (currentDiff <= secondary_map[tile][3]){
+                  secondary_map[tile][2] = self.contributed_filename;
+                  secondary_map[tile][3] = currentDiff;
+                }
+              }
+            }
+
+        }
+
+     });
+  }
+
+  send_new_contribution(){
+    //emit new contribution to client
+  }
+
+
   match_avg_rgb(){
     let self = this;
     //loop through each value in mosaic map and pass to is a match
