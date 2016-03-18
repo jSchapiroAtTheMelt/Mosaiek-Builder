@@ -141,23 +141,25 @@ module.exports = (app) => {
           io.emit('error',err);
 
         } else {
-          data = data.match(/\d/g).join("");
+          if (data !== undefined || data !== null){
+            data = data.match(/\d/g).join("");
 
-          let mosaicImageMap = {
-            mosaic:mosaicID,
-            mosaicImage:contributionID,
-            position:data,
-            rgbImage:transformedImage
-          }
+            let mosaicImageMap = {
+              mosaic:mosaicID,
+              mosaicImage:contributionID,
+              position:data,
+              rgbImage:transformedImage
+            }
 
-          console.log("Middleware.js: New contribution made: ", mosaicImageMap);
-          
-          let roomsToEmit = mosaicRooms[mosaicID];
-
-          if (roomsToEmit !== undefined){
-            for (let room in roomsToEmit){
+            console.log("Middleware.js: New contribution made: ", mosaicImageMap);
             
-              roomsToEmit[room].emit('contribution', mosaicImageMap);
+            let roomsToEmit = mosaicRooms[mosaicID];
+
+            if (roomsToEmit !== undefined){
+              for (let room in roomsToEmit){
+              
+                roomsToEmit[room].emit('contribution', mosaicImageMap);
+              }
             }
           }
 
