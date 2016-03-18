@@ -141,7 +141,7 @@ module.exports = (app) => {
           io.emit('error',err);
 
         } else {
-          if (data !== undefined && data !== null && data.match(/\d/g)){
+          if (data !== undefined && data !== null && data.match(/\d/g) !== null){
            
             data = data.match(/\d/g).join("");
 
