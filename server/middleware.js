@@ -141,7 +141,8 @@ module.exports = (app) => {
           io.emit('error',err);
 
         } else {
-          if (data !== undefined || data !== null){
+          if (data !== undefined && data !== null && data.match(/\d/g)){
+           
             data = data.match(/\d/g).join("");
 
             let mosaicImageMap = {
