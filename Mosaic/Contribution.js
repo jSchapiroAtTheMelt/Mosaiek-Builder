@@ -214,6 +214,9 @@ class Contribution {
                 console.log("Contribution.js: Transforming 40x40 mosaic for the first time");
                 
               }
+              let counter = 0;
+              let i = 0;
+              let chunkSize = 50; 
 
               (function loop(i){
                 let imageRGB = secondary_map[i][1];
@@ -262,6 +265,10 @@ class Contribution {
                 }
               }
 
+              let counter = 0;
+              let i = 0;
+              let chunkSize = 50; 
+              
               (function loop(i){
                 let imageRGB = contributionsToMake[i][1];
                 let imageName = contributionsToMake[i][0];
