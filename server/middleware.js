@@ -96,7 +96,7 @@ module.exports = (app) => {
     let mosaicId = req.body.object.objectId 
     //let mosaicId = "448GSqKkkW"
     if (mosaicId) {
-      new Mosaic(mosaicId,10,10,true,function(err,mosaic_map){
+      new Mosaic(mosaicId,40,40,true,function(err,mosaic_map){
         if (mosaic_map) {
           res.status(200);
           res.send('new mosaic map made')

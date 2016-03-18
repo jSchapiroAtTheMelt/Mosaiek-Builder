@@ -161,7 +161,8 @@ class Contribution {
           console.log("Contribution.js: Resizing Contribution Image");
           gm('temp/mosaic_image/'+self.contributed_filename +'.jpg').resize(self.width,self.height).write('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(){
             console.log("Contribution.js: Done resizing contribution image, stored to, ",'temp/mosaic_image/'+self.contributed_filename +'.jpg');
-            self.match_avg_rgb(self.mosaic_map);
+            //self.match_avg_rgb(self.mosaic_map);
+            self.contribute_to_mosaic();
           });
           
         } catch (e) {
@@ -236,6 +237,8 @@ class Contribution {
             } else {
               
               //for every value in secondary map
+              let contributionsToMake = [];
+
               for (let tile in secondary_map){
 
                 //main mosaic tile's rgb
@@ -254,8 +257,29 @@ class Contribution {
                 if (currentDiff <= secondary_map[tile][3]){
                   secondary_map[tile][2] = self.contributed_filename;
                   secondary_map[tile][3] = currentDiff;
+                  contributionsToMake.push(secondary_map[tile]);
+                  contributionsToMakeCount++;
                 }
               }
+
+              (function loop(i){
+                let imageRGB = contributionsToMake[i][1];
+                let imageName = contributionsToMake[i][0];
+
+                if (i !== contributionsToMake.length){
+                  self.transform_image(imageRGB[0],imageRGB[1],imageRGB[2],imageName,secondary_map,true)
+                } else {
+                  self.transform_image(imageRGB[0],imageRGB[1],imageRGB[2],imageName,secondary_map,false)
+                }
+
+                i++;
+                if(i == contributionsToMake.length) return; // we're done.
+                if(i%chunkSize == 0){
+                  setTimeout(function(){ loop(i); }, 50);
+                } else {
+                  loop(i);
+                }
+              })(0);
             }
 
         }
@@ -263,9 +287,6 @@ class Contribution {
      });
   }
 
-  send_new_contribution(){
-    //emit new contribution to client
-  }
 
 
   match_avg_rgb(){
