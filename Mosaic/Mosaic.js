@@ -127,24 +127,38 @@ class Mosaic {
                       self.input.width = size.width;
                       self.input.height = size.height;
 
-                      //set the dimensions of a main mosaic cell
-                      self.cell.width = self.input.width / self.columns;
-                      self.cell.height = self.input.height / self.rows;
-                      
-                      console.log('Mosaic.js: Main Mosaic Cell Width',self.cell.width);
-                      console.log('Mosaic.js: Main Mosaic Cell Height',self.cell.height);
+                      //trim the fat off
+                      let widthFat = self.input.width % self.rows;
+                      let heightFat = self.input.height % self.columns;
 
-                      //convert into grid based on main mosaic cell width - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
-                      console.log("Mosaic.js: Converting main mosaic image into equal sized cells")
-                      im.convert(['temp/'+self.input_filename+'.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'temp/mosaic_tiles/mosaic.jpg'], function(err,data) {
-                          if(err) { throw err; }
-                          console.log("Mosaic.js: Successfully created cells from main mosaic image")
-                          self.gen_mosaic_map();
-                            
+                      self.input.width = self.input.width - widthFat;
+                      self.input.height = self.input.height - heightFat;
+
+                      console.log("Mosaic.js: Trimming fat off width and height", self.input.width,self.input.height);
+
+                      gm('temp/'+self.input_filename+'.jpg').resize(self.input.width,self.input.height).write('temp/'+self.input_filename+'.jpg',function(){
+                        
+                        //set the dimensions of a main mosaic cell
+                        self.cell.width = self.input.width / self.columns;
+                        self.cell.height = self.input.height / self.rows;
+                        
+                        console.log('Mosaic.js: Main Mosaic Cell Width',self.cell.width);
+                        console.log('Mosaic.js: Main Mosaic Cell Height',self.cell.height);
+
+                        //convert into grid based on main mosaic cell width - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
+                        console.log("Mosaic.js: Converting main mosaic image into equal sized cells")
+                        im.convert(['temp/'+self.input_filename+'.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'temp/mosaic_tiles/mosaic.jpg'], function(err,data) {
+                            if(err) { throw err; }
+                            console.log("Mosaic.js: Successfully created cells from main mosaic image")
+                            self.gen_mosaic_map();
+                              
+                        });
+                        
+                        // store in redis - key = mosaic , value = grid of images
+                        console.log('done')
+
                       });
-                      
-                      // store in redis - key = mosaic , value = grid of images
-                      console.log('done')
+
 
                     } else {
                       self.callback(err,null);
@@ -229,7 +243,7 @@ class Mosaic {
                 
                 //remove all files in /mosaic_tiles
                 console.log("Mosaic.js: Removing the contents of temp/mosaic_tiles")
-                remove('temp/mosaic_tiles/',function(){ //removes entire directory
+                /*remove('temp/mosaic_tiles/',function(){ //removes entire directory
                   console.log("Mosaic.js: Successfully removed the contents of temp/mosaic_tiles");
                   try {
                     
@@ -239,11 +253,11 @@ class Mosaic {
                   } catch (e) {
                     console.log("Mosaic.js: Error while recreating temp/mosaic_tiles",e)
                   }
-                })
+                })*/
 
-                self.callback(null,self.mosaic_map)
+                //self.callback(null,self.mosaic_map)
 
-                //self.gen_initial_mosaic(); saving this for a rainy day
+                self.gen_initial_mosaic(); //saving this for a rainy day
              }
            })
           
@@ -272,15 +286,22 @@ class Mosaic {
         fs.readFile('temp/mosaic_tiles/'+ image.toString() + '.txt', {encoding: 'utf-8'}, function(err,data){
           if (data) {
             let tempArray = data.split(/\(([^)]+)\)/);
-            console.log('Mosaic.js: Temp Array: ',tempArray);
+            
+            //console.log('Contribution.js: Successfully retrieved average rgb for individual tile',image );
             if (tempArray[3] !== undefined){
               let rgbString = tempArray[3].split(',');
+              if (rgbString.length == 1) {
+                rgbString = [rgbString[0],rgbString[0],rgbString[0]]
+              }
+            
               callback(rgbString,mapIndex,image);
             } else if (tempArray[2]!== undefined && tempArray[2].length === 3){
               let rgbString = tempArray[2].split(',');
+              
               callback(rgbString,mapIndex,image);
             } else {
               let rgbString = tempArray[1].split(',');
+              
               callback(rgbString,mapIndex,image);
             }
             
@@ -293,7 +314,7 @@ class Mosaic {
     }
   }
 
-  /*
+  
   gen_initial_mosaic() {
     console.log('genearting intial mosaic....')
     let self = this;
@@ -348,9 +369,9 @@ class Mosaic {
       console.log("Error while resizing main mosaic image",e);
     }
     
-  } */
+  } 
 
-/*
+
   merge_colored_tiles() {
     
     let self = this;
@@ -389,7 +410,7 @@ class Mosaic {
       //send across the wire to iOs
     });
     
-  }*/
+  }
 
 }
 

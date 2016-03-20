@@ -93,8 +93,8 @@ module.exports = (app) => {
 
 
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
-    let mosaicId = req.body.object.objectId 
-    //let mosaicId = "448GSqKkkW"
+    //let mosaicId = req.body.object.objectId 
+    let mosaicId = "t5UKXYmCUz"
     if (mosaicId) {
       new Mosaic(mosaicId,40,40,true,function(err,mosaic_map){
         if (mosaic_map) {
@@ -115,13 +115,13 @@ module.exports = (app) => {
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
   
-    let mosaicID = req.body.object.mosaic.objectId; //448GSqKkkW
-    let contributionID = req.body.object.objectId //UFySvKQlpX
-    let contributionImageData = req.body.object.thumbnail; //http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg
-    let red = req.body.object.red;
-    let green = req.body.object.green;
-    let blue = req.body.object.blue;
-    let rgb = [red,green,blue]; //[ 78, 66, 49 ]
+    let mosaicID = "t5UKXYmCUz"//req.body.object.mosaic.objectId; //448GSqKkkW
+    let contributionID = "Fl3ZegVuOK" //req.body.object.objectId //UFySvKQlpX
+    let contributionImageData = "http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg" //req.body.object.thumbnail; //http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg
+    //let red = req.body.object.red;
+    //let green = req.body.object.green;
+    //let blue = req.body.object.blue;
+    let rgb = [ 78, 66, 49 ]//[red,green,blue]; //[ 78, 66, 49 ]
 
     console.log("Middleware.js/contribution: Mosaic Contribution ")
     console.log("------------------------------------")
