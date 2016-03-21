@@ -63,6 +63,7 @@ class Mosaic {
         console.log("Mosaic.js: mosaic map already exists, returning");
         self.callback("mosaic map already exists",null);
         return;
+
       } else {
 
         console.log("Mosaic.js: creating new mosaic map");
@@ -154,8 +155,7 @@ class Mosaic {
                               
                         });
                         
-                        // store in redis - key = mosaic , value = grid of images
-                        console.log('done')
+                        
 
                       });
 
@@ -243,19 +243,20 @@ class Mosaic {
                 
                 //remove all files in /mosaic_tiles
                 console.log("Mosaic.js: Removing the contents of temp/mosaic_tiles")
-                remove('temp/mosaic_tiles/',function(){ //removes entire directory
+
+                remove('temp/mosaic_tiles',function(){ //removes entire directory
                   console.log("Mosaic.js: Successfully removed the contents of temp/mosaic_tiles");
                   try {
                     
                       fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty 
-                    
+                      self.callback(null,self.mosaic_map)
                     
                   } catch (e) {
                     console.log("Mosaic.js: Error while recreating temp/mosaic_tiles",e)
                   }
                 })
 
-                self.callback(null,self.mosaic_map)
+                
 
                 //self.gen_initial_mosaic(); //saving this for a rainy day
              }

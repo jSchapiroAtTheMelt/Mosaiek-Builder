@@ -71,10 +71,16 @@ class Contribution {
             console.log("Contribution.js: Successfully retrieved main mosaic map cell dimensions");
             let dimens = JSON.parse(data);
             
-            self.width = dimens[0] * 10;
-            self.height = dimens[1] * 10;
+            if (dimens[0] == null || dimens[1] == null){
+              self.callback("Contribution.js: Could not retrieve main mosaic dimensions",null);
+            } else {
+              
+              self.width = dimens[0] * 10;
+              self.height = dimens[1] * 10;
 
-            self.get_main_mosaic_image();
+              self.get_main_mosaic_image();
+            }
+           
 
           }
         })
