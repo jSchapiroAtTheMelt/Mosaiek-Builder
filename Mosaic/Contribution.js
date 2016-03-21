@@ -391,7 +391,7 @@ populate_contribution_image_tiles(secondary_map){
           i++;
           if(i == secondary_map.length){
             console.log("Contribution.js: Done Transforming RGB  for Each Contribution Tile ")
-            self.merge_contribution_images()
+            self.merge_contribution_images(secondary_map)
 
           } else {
             if(i%chunkSize == 0){
@@ -427,7 +427,7 @@ populate_contribution_image_tiles(secondary_map){
     }
   }
 
-  merge_contribution_images(){
+  merge_contribution_images(secondary_map){
 
     let self = this;
 
@@ -460,7 +460,7 @@ populate_contribution_image_tiles(secondary_map){
         mosaicTilesArray.push('40' + 'x' + '40');
         mosaicTilesArray.push('-geometry');
         mosaicTilesArray.push('+0+0');
-        mosaicTilesArray.push('pleaseWork.jpg');
+        mosaicTilesArray.push('temp/final_mosaic/finalMosaic.jpg');
 
         
         //merge the contents of mosaic_tiles_converted into single image
@@ -468,17 +468,35 @@ populate_contribution_image_tiles(secondary_map){
           if (err) console.log(err);
           console.log('Finished merging images to form finalMosaic');
 
-          remove('temp/contribution_image_tiles/',function(){ //removes entire directory
-            console.log("Mosaic.js: Successfully removed the contents of temp/contribution_image_tiles/");
-            try {
-              
-                fs.mkdirSync('temp/contribution_image_tiles/'); //replaces it but empty 
-              
-              
-            } catch (e) {
-              console.log("Mosaic.js: Error while recreating temp/contribution_image_tiles/",e)
-            }
-          })
+          fs.readFile('temp/finalMosaic/finalMosaic.jpg',function(err,data){
+            
+            self.callback(err,null,data.toString('base64'),secondary_map,true);
+
+            remove('temp/finalMosaic/',function(){
+              try {
+                
+                  fs.mkdirSync('temp/finalMosaic/'); //replaces it but empty 
+                
+                
+              } catch (e) {
+                console.log("Mosaic.js: Error while recreating temp/finalMosaic//",e)
+              }
+            
+            });
+
+            remove('temp/contribution_image_tiles/',function(){ //removes entire directory
+              console.log("Mosaic.js: Successfully removed the contents of temp/contribution_image_tiles/");
+              try {
+                
+                  fs.mkdirSync('temp/contribution_image_tiles/'); //replaces it but empty 
+                
+                
+              } catch (e) {
+                console.log("Mosaic.js: Error while recreating temp/contribution_image_tiles/",e)
+              }
+            })
+
+          });
           //send image to parse
           //send across the wire to iOs
         });
