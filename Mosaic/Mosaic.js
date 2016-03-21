@@ -243,7 +243,7 @@ class Mosaic {
                 
                 //remove all files in /mosaic_tiles
                 console.log("Mosaic.js: Removing the contents of temp/mosaic_tiles")
-                /*remove('temp/mosaic_tiles/',function(){ //removes entire directory
+                remove('temp/mosaic_tiles/',function(){ //removes entire directory
                   console.log("Mosaic.js: Successfully removed the contents of temp/mosaic_tiles");
                   try {
                     
@@ -253,11 +253,11 @@ class Mosaic {
                   } catch (e) {
                     console.log("Mosaic.js: Error while recreating temp/mosaic_tiles",e)
                   }
-                })*/
+                })
 
-                //self.callback(null,self.mosaic_map)
+                self.callback(null,self.mosaic_map)
 
-                self.gen_initial_mosaic(); //saving this for a rainy day
+                //self.gen_initial_mosaic(); //saving this for a rainy day
              }
            })
           
