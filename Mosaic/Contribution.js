@@ -459,15 +459,24 @@ populate_contribution_image_tiles(secondary_map){
           return 'temp/contribution_image_tiles/' + value;
         });
 
+        remove('temp/finalMosaic/',function(){
 
-        //order the value of arrays mosaic_tiles_converted/filename-0 to mosaic_tiles_converted/filename-n
-        mosaicTilesArray.sort(naturalSorter);
-        mosaicTilesArray[mosaicTilesArray.length - 1] = '-tile';
-        mosaicTilesArray.push('40' + 'x' + '40');
-        mosaicTilesArray.push('-geometry');
-        mosaicTilesArray.push('+0+0');
-        mosaicTilesArray.push('temp/final_mosaic/finalMosaic.jpg');
+          try {
+            
+            fs.mkdirSync('temp/finalMosaic/'); //replaces it but empty 
+            //order the value of arrays mosaic_tiles_converted/filename-0 to mosaic_tiles_converted/filename-n
+            mosaicTilesArray.sort(naturalSorter);
+            mosaicTilesArray[mosaicTilesArray.length - 1] = '-tile';
+            mosaicTilesArray.push('40' + 'x' + '40');
+            mosaicTilesArray.push('-geometry');
+            mosaicTilesArray.push('+0+0');
+            mosaicTilesArray.push('temp/final_mosaic/finalMosaic.jpg');
+            
+          } catch (e) {
+            console.log("Mosaic.js: Error while recreating temp/finalMosaic//",e)
+          }
 
+        });
         
         //merge the contents of mosaic_tiles_converted into single image
         sm.montage(mosaicTilesArray, function(err, stdout){
@@ -476,7 +485,12 @@ populate_contribution_image_tiles(secondary_map){
 
           fs.readFile('temp/finalMosaic/finalMosaic.jpg',function(err,data){
             
-            self.callback(err,null,data.toString('base64'),secondary_map,true);
+            if (data){
+              self.callback(err,null,data.toString('base64'),secondary_map,true);
+            } else {
+              self.callback(err,null)
+            }
+            
 
             remove('temp/finalMosaic/',function(){
               try {
