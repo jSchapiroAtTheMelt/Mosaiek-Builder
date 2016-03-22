@@ -229,8 +229,9 @@ class Contribution {
               for (let tile in secondary_map){
 
                 //main mosaic tile's rgb
-                let tileRGB = self.secondary_map[tile][1];
+                
                 if (self.secondary_map[tile]){
+                  let tileRGB = self.secondary_map[tile][1];
                   if (self.secondary_map[tile][1] && tileRGB && tileRGB.length === 3){
                     let tileRed = parseInt(tileRGB[0]);
                     let tileGreen = parseInt(tileRGB[1]);
