@@ -245,7 +245,7 @@ class Contribution {
                   secondary_map[tile][2] = self.contributed_filename;
                   secondary_map[tile][3] = currentDiff;
                   contributionsToMake.push(secondary_map[tile]);
-                  contributionsToMakeCount++;
+                 
                 }
                 
               }
