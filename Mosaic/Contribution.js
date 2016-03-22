@@ -228,29 +228,24 @@ class Contribution {
 
               for (let tile in secondary_map){
 
-                //main mosaic tile's rgb
-                
-                if (self.secondary_map[tile]){
-                  let tileRGB = self.secondary_map[tile][1];
-                  if (self.secondary_map[tile][1] && tileRGB && tileRGB.length === 3){
-                    let tileRed = parseInt(tileRGB[0]);
-                    let tileGreen = parseInt(tileRGB[1]);
-                    let tileBlue = parseInt(tileRGB[2]);
+                let tileRGB = secondary_map[tile][1];
+              
+                let tileRed = parseInt(tileRGB[0]);
+                let tileGreen = parseInt(tileRGB[1]);
+                let tileBlue = parseInt(tileRGB[2]);
 
-                    //RGB Diffs
-                    let redDiff = Math.abs(tileRed - imageRed);
-                    let greenDiff = Math.abs(tileGreen - imageGreen);
-                    let blueDiff = Math.abs(tileBlue - imageBlue); 
-                    
-                    let currentDiff = redDiff + greenDiff + blueDiff;
-                    
-                    if (currentDiff <= secondary_map[tile][3]){
-                      secondary_map[tile][2] = self.contributed_filename;
-                      secondary_map[tile][3] = currentDiff;
-                      contributionsToMake.push(secondary_map[tile]);
-                      contributionsToMakeCount++;
-                    }
-                  }
+                //RGB Diffs
+                let redDiff = Math.abs(tileRed - imageRed);
+                let greenDiff = Math.abs(tileGreen - imageGreen);
+                let blueDiff = Math.abs(tileBlue - imageBlue); 
+                
+                let currentDiff = redDiff + greenDiff + blueDiff;
+                
+                if (currentDiff <= secondary_map[tile][3]){
+                  secondary_map[tile][2] = self.contributed_filename;
+                  secondary_map[tile][3] = currentDiff;
+                  contributionsToMake.push(secondary_map[tile]);
+                  contributionsToMakeCount++;
                 }
                 
               }
