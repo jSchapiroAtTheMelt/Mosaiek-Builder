@@ -459,11 +459,11 @@ populate_contribution_image_tiles(secondary_map){
           return 'temp/contribution_image_tiles/' + value;
         });
 
-        remove('temp/finalMosaic/',function(){
+        remove('temp/final_mosaic/',function(){
 
           try {
             
-            fs.mkdirSync('temp/finalMosaic/'); //replaces it but empty 
+            fs.mkdirSync('temp/final_mosaic/'); //replaces it but empty 
             //order the value of arrays mosaic_tiles_converted/filename-0 to mosaic_tiles_converted/filename-n
             mosaicTilesArray.sort(naturalSorter);
             mosaicTilesArray[mosaicTilesArray.length - 1] = '-tile';
@@ -481,9 +481,9 @@ populate_contribution_image_tiles(secondary_map){
         //merge the contents of mosaic_tiles_converted into single image
         sm.montage(mosaicTilesArray, function(err, stdout){
           if (err) console.log(err);
-          console.log('Finished merging images to form finalMosaic');
+          console.log('Contribution.js: Finished merging images to form finalMosaic');
 
-          fs.readFile('temp/finalMosaic/finalMosaic.jpg',function(err,data){
+          fs.readFile('temp/final_mosaic/finalMosaic.jpg',function(err,data){
             
             if (data){
               self.callback(err,null,data.toString('base64'),secondary_map,true);
@@ -492,27 +492,27 @@ populate_contribution_image_tiles(secondary_map){
             }
             
 
-            remove('temp/finalMosaic/',function(){
+            remove('temp/final_mosaic/',function(){
               try {
                 
-                  fs.mkdirSync('temp/finalMosaic/'); //replaces it but empty 
+                  fs.mkdirSync('temp/final_mosaic/'); //replaces it but empty 
                 
                 
               } catch (e) {
-                console.log("Mosaic.js: Error while recreating temp/finalMosaic//",e)
+                console.log("Contribution.js: Error while recreating temp/finalMosaic//",e)
               }
             
             });
 
             remove('temp/contribution_image_tiles/',function(){ //removes entire directory
-              console.log("Mosaic.js: Successfully removed the contents of temp/contribution_image_tiles/");
+              console.log("Contribution.js: Successfully removed the contents of temp/contribution_image_tiles/");
               try {
                 
                   fs.mkdirSync('temp/contribution_image_tiles/'); //replaces it but empty 
                 
                 
               } catch (e) {
-                console.log("Mosaic.js: Error while recreating temp/contribution_image_tiles/",e)
+                console.log("Contribution.js: Error while recreating temp/contribution_image_tiles/",e)
               }
             })
 
