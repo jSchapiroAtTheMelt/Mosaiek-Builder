@@ -459,24 +459,15 @@ populate_contribution_image_tiles(secondary_map){
           return 'temp/contribution_image_tiles/' + value;
         });
 
-        remove('temp/final_mosaic/',function(){
 
-          try {
+        //order the value of arrays mosaic_tiles_converted/filename-0 to mosaic_tiles_converted/filename-n
+        mosaicTilesArray.sort(naturalSorter);
+        mosaicTilesArray[mosaicTilesArray.length - 1] = '-tile';
+        mosaicTilesArray.push('40' + 'x' + '40');
+        mosaicTilesArray.push('-geometry');
+        mosaicTilesArray.push('+0+0');
+        mosaicTilesArray.push('temp/final_mosaic/finalMosaic.jpg');
             
-            fs.mkdirSync('temp/final_mosaic/'); //replaces it but empty 
-            //order the value of arrays mosaic_tiles_converted/filename-0 to mosaic_tiles_converted/filename-n
-            mosaicTilesArray.sort(naturalSorter);
-            mosaicTilesArray[mosaicTilesArray.length - 1] = '-tile';
-            mosaicTilesArray.push('40' + 'x' + '40');
-            mosaicTilesArray.push('-geometry');
-            mosaicTilesArray.push('+0+0');
-            mosaicTilesArray.push('temp/final_mosaic/finalMosaic.jpg');
-            
-          } catch (e) {
-            console.log("Mosaic.js: Error while recreating temp/finalMosaic//",e)
-          }
-
-        });
         
         //merge the contents of mosaic_tiles_converted into single image
         sm.montage(mosaicTilesArray, function(err, stdout){
