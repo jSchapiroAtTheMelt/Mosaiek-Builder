@@ -446,7 +446,7 @@ populate_contribution_image_tiles(secondary_map){
         
         //generate single string of mosaic_tile filenames
         contributions = contributions.sort(cmpStringsWithNumbers);
-        console.log('Contributions',contributions)
+        //console.log('Contributions',contributions)
 
         let compoundTileString = contributions.reduce(function(previousValue, currentValue, currentIndex, array){
           return previousValue + currentValue + ' ';
