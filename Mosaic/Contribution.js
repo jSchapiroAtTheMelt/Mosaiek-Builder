@@ -242,6 +242,7 @@ class Contribution {
                 let currentDiff = redDiff + greenDiff + blueDiff;
                 
                 if (currentDiff <= secondary_map[tile][3]){
+                  console.log('Contribution.js: Contribution overriden!')
                   secondary_map[tile][2] = self.contributed_filename;
                   secondary_map[tile][3] = currentDiff;
                   contributionsToMake.push(secondary_map[tile]);
