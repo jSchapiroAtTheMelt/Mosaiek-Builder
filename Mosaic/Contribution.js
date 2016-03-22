@@ -510,6 +510,21 @@ populate_contribution_image_tiles(secondary_map){
             })
 
           });
+
+            remove('temp/contribution_images/',function(){ //removes entire directory
+              console.log("Contribution.js: Successfully removed the contents of temp/contribution_images/");
+              try {
+                
+                  fs.mkdirSync('temp/contribution_images/'); //replaces it but empty 
+                
+                
+              } catch (e) {
+                console.log("Contribution.js: Error while recreating temp/contribution_images/",e)
+              }
+            })
+
+          });
+            
           //send image to parse
           //send across the wire to iOs
         });
