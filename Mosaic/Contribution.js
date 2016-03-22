@@ -509,8 +509,6 @@ populate_contribution_image_tiles(secondary_map){
               }
             })
 
-          });
-
             remove('temp/contribution_images/',function(){ //removes entire directory
               console.log("Contribution.js: Successfully removed the contents of temp/contribution_images/");
               try {
@@ -523,7 +521,10 @@ populate_contribution_image_tiles(secondary_map){
               }
             })
 
+
           });
+
+          
             
           //send image to parse
           //send across the wire to iOs
