@@ -71,7 +71,7 @@ class Contribution {
             console.log("Contribution.js: Successfully retrieved main mosaic map cell dimensions");
             let dimens = JSON.parse(data);
             
-            if (dimens[0] == null || dimens[1] == null){
+            if (dimens === null || dimens === undefined){
               self.callback("Contribution.js: Could not retrieve main mosaic dimensions",null);
             } else {
               
