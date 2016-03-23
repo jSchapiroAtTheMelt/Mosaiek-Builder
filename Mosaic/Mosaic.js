@@ -112,7 +112,7 @@ class Mosaic {
 
                 //create directory for the main mosaic image tiles
                 console.log("Mosaic.js: Creating temp directory for main mosaic image tiles")
-                mkdirp('/tmp/mosaic_tiles', function(err) { 
+                mkdirp('/temp/mosaic_tiles', function(err) { 
 
                   console.log("Mosaic.js: Successfully created temp directory for main mosaic image tiles")
                   
