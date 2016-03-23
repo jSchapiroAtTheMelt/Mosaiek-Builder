@@ -42,7 +42,7 @@ class Contribution {
     this.rgb = rgb;  //array of rgb values
     this.width = 0;
     this.height = 0;
-    this.total_cells = 40*40;
+    this.total_cells = 30*30;
     this.callback = callback;
 
     this.get_mosaic_map()
@@ -75,8 +75,8 @@ class Contribution {
               self.callback("Contribution.js: Could not retrieve main mosaic dimensions",null);
             } else {
               
-              self.width = dimens[0] * 10;
-              self.height = dimens[1] * 10;
+              self.width = dimens[0];
+              self.height = dimens[1];
 
               self.get_main_mosaic_image();
             }
@@ -300,6 +300,9 @@ class Contribution {
                 try {
                   // read main mosaic image from file system.
                    console.log("Contribution.js: Successfully retrieved Contribution Mosaic Object");
+
+                   //******* SCALE DOWN IMAGE QUALITY ****//////
+
                   fs.writeFileSync('temp/contribution_images/'+ mosaicImageName +'.jpg', data.read()); 
                   mosaicImageCount ++
                   if (mosaicImageCount === contributionsToRetrieve.length) {
@@ -343,7 +346,7 @@ class Contribution {
         //console.log("Contribution.js: Transforming 40x40 mosaic for the first time", secondary_map);
         (function loop(i){
           
-          gm('temp/contribution_images/'+contributions[i]).resize(self.width,self.height).write('temp/contribution_images/'+contributions[i],function(){
+          gm('temp/contribution_images/'+contributions[i]).resize(self.width,self.height).quality(60).write('temp/contribution_images/'+contributions[i],function(){
             console.log("Contribution.js: Done resizing contribution image, stored to, ",'temp/contribution_images/'+contributions[i]);
             //self.match_avg_rgb(self.mosaic_map);
             console.log("Contribution.js: ", contributions.length,i)
@@ -450,7 +453,7 @@ populate_contribution_image_tiles(secondary_map){
 
         let compoundTileString = contributions.reduce(function(previousValue, currentValue, currentIndex, array){
           return previousValue + currentValue + ' ';
-        });
+        }, " ");
         
         //remove the .DS_Store value
         let cleanCompoundTileString = compoundTileString;
@@ -465,7 +468,7 @@ populate_contribution_image_tiles(secondary_map){
         //order the value of arrays mosaic_tiles_converted/filename-0 to mosaic_tiles_converted/filename-n
         mosaicTilesArray.sort(naturalSorter);
         mosaicTilesArray[mosaicTilesArray.length - 1] = '-tile';
-        mosaicTilesArray.push('40' + 'x' + '40');
+        mosaicTilesArray.push('30' + 'x' + '30');
         mosaicTilesArray.push('-geometry');
         mosaicTilesArray.push('+0+0');
         mosaicTilesArray.push('temp/final_mosaic/finalMosaic.jpg');
@@ -524,10 +527,6 @@ populate_contribution_image_tiles(secondary_map){
 
           });
 
-          
-            
-          //send image to parse
-          //send across the wire to iOs
         });
    
       }
