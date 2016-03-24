@@ -42,7 +42,6 @@ class Contribution {
     this.rgb = rgb;  //array of rgb values
     this.width = 0;
     this.height = 0;
-    this.total_cells = 30*30;
     this.callback = callback;
 
     this.get_mosaic_map()
@@ -75,8 +74,8 @@ class Contribution {
               self.callback("Contribution.js: Could not retrieve main mosaic dimensions",null);
             } else {
               
-              self.width = dimens[0];
-              self.height = dimens[1];
+              self.width = dimens[0] * 10;
+              self.height = dimens[1] * 10;
 
               self.get_main_mosaic_image();
             }
@@ -150,7 +149,7 @@ class Contribution {
   resize_mosaic_image() {
     let self = this;
     console.log("Contribution.js: Retrieving Contribution Image Data", self.contributedImageData)
-    http.request(self.contributedImageData.url, function(response) {                                        
+    http.request(self.contributedImageData, function(response) {                                        
       let data = new Stream();                                                    
 
       response.on('data', function(chunk) {                                       
@@ -166,7 +165,7 @@ class Contribution {
           
           //get main image stats
           console.log("Contribution.js: Resizing Contribution Image");
-          gm('temp/mosaic_image/'+self.contributed_filename +'.jpg').resize(self.width,self.height).write('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(){
+          gm('temp/mosaic_image/'+self.contributed_filename +'.jpg').resize(self.width,self.height).quality(30).write('temp/mosaic_image/'+self.contributed_filename +'.jpg',function(){
             console.log("Contribution.js: Done resizing contribution image, stored to, ",'temp/mosaic_image/'+self.contributed_filename +'.jpg');
             //self.match_avg_rgb(self.mosaic_map);
             self.contribute_to_mosaic();
@@ -346,7 +345,7 @@ class Contribution {
         //console.log("Contribution.js: Transforming 40x40 mosaic for the first time", secondary_map);
         (function loop(i){
           
-          gm('temp/contribution_images/'+contributions[i]).resize(self.width,self.height).quality(60).write('temp/contribution_images/'+contributions[i],function(){
+          gm('temp/contribution_images/'+contributions[i]).resize(self.width,self.height).write('temp/contribution_images/'+contributions[i],function(){
             console.log("Contribution.js: Done resizing contribution image, stored to, ",'temp/contribution_images/'+contributions[i]);
             //self.match_avg_rgb(self.mosaic_map);
             console.log("Contribution.js: ", contributions.length,i)
@@ -449,11 +448,11 @@ populate_contribution_image_tiles(secondary_map){
         
         //generate single string of mosaic_tile filenames
         contributions = contributions.sort(cmpStringsWithNumbers);
-        //console.log('Contributions',contributions)
+        console.log('Contributions',contributions)
 
         let compoundTileString = contributions.reduce(function(previousValue, currentValue, currentIndex, array){
           return previousValue + currentValue + ' ';
-        }, " ");
+        }, "");
         
         //remove the .DS_Store value
         let cleanCompoundTileString = compoundTileString;
@@ -473,7 +472,7 @@ populate_contribution_image_tiles(secondary_map){
         mosaicTilesArray.push('+0+0');
         mosaicTilesArray.push('temp/final_mosaic/finalMosaic.jpg');
             
-        
+        console.log('tiles array',mosaicTilesArray)
         //merge the contents of mosaic_tiles_converted into single image
         sm.montage(mosaicTilesArray, function(err, stdout){
           if (err) console.log(err);
@@ -488,7 +487,7 @@ populate_contribution_image_tiles(secondary_map){
             }
             
 
-            remove('temp/final_mosaic/',function(){
+           /* remove('temp/final_mosaic/',function(){
               try {
                 
                   fs.mkdirSync('temp/final_mosaic/'); //replaces it but empty 
@@ -498,7 +497,7 @@ populate_contribution_image_tiles(secondary_map){
                 console.log("Contribution.js: Error while recreating temp/finalMosaic//",e)
               }
             
-            });
+            });*/
 
             remove('temp/contribution_image_tiles/',function(){ //removes entire directory
               console.log("Contribution.js: Successfully removed the contents of temp/contribution_image_tiles/");
@@ -538,6 +537,7 @@ populate_contribution_image_tiles(secondary_map){
 }
 
 function cmpStringsWithNumbers (a, b) {
+
   var reParts = /\d+|\D+/g;
   
    // Regular expression to test if the string has a digit.

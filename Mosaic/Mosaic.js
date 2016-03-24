@@ -63,7 +63,7 @@ class Mosaic {
         console.log("Mosaic.js: mosaic map already exists, returning");
         self.callback("mosaic map already exists",null);
         return;
-
+        
       } else {
 
         console.log("Mosaic.js: creating new mosaic map");
@@ -129,11 +129,11 @@ class Mosaic {
                       self.input.height = size.height;
 
                       //trim the fat off
-                      let widthFat = self.input.width % self.rows;
-                      let heightFat = self.input.height % self.columns;
+                      //let widthFat = self.input.width % self.rows;
+                      //let heightFat = self.input.height % self.columns;
 
-                      self.input.width = self.input.width - widthFat;
-                      self.input.height = self.input.height - heightFat;
+                      //self.input.width = self.input.width - widthFat;
+                      //self.input.height = self.input.height - heightFat;
 
                       console.log("Mosaic.js: Trimming fat off width and height", self.input.width,self.input.height);
 
@@ -226,7 +226,8 @@ class Mosaic {
                 console.log("Mosaic.js: Successfully found rgb value for each mosaic tile");
                 
                 //trim the fat - excess tiles that are not the dimensions of the main mosaic cell
-                if (self.mosaic_map.length > self.rows * self.columns) self.mosaic_map = self.mosaic_map.slice(0, self.rows * self.columns);
+
+                //if (self.mosaic_map.length > self.rows * self.columns) self.mosaic_map = self.mosaic_map.slice(0, self.rows * self.columns);
 
                 //clear existing ref - only useful when testing on the same mosaic
                 client.del(self.input_filename);
@@ -235,7 +236,8 @@ class Mosaic {
                 client.del(self.input_filename + '_width_height');
 
                 console.log("Mosaic.js: Storing main mosaic map in Redis");
-                
+                self.mosaic_map = self.mosaic_map.sort(naturalSorter)
+
                 client.set(self.input_filename,JSON.stringify(self.mosaic_map.sort(naturalSorter))); // Store Mosaic Map in Redis
                 client.set(self.input_filename+'_contributions',JSON.stringify([]));//mosaic images
                 client.set(self.input_filename+'_dimens',JSON.stringify([self.cell.width,self.cell.height]));
@@ -250,7 +252,7 @@ class Mosaic {
                     
                       fs.mkdirSync('temp/mosaic_tiles'); //replaces it but empty 
                       self.callback(null,self.mosaic_map)
-                    
+                      
                   } catch (e) {
                     console.log("Mosaic.js: Error while recreating temp/mosaic_tiles",e)
                   }
@@ -415,30 +417,53 @@ class Mosaic {
 
 }
 
-function naturalSorter(as, bs){
-  as = as[0];
-  bs = bs[0];
+function naturalSorter(a, b){
+  var reParts = /\d+|\D+/g;
+  
+   // Regular expression to test if the string has a digit.
+   var reDigit = /\d/;
+    // Get rid of casing issues.
+    
 
-    if (!as || !bs) {
-      return 0;
+        a = a[0].toUpperCase();
+        b = b[0].toUpperCase();
+      
+        // Separates the strings into substrings that have only digits and those
+        // that have no digits.
+        var aParts = a.match(reParts);
+        var bParts = b.match(reParts);
+      
+        // Used to determine if aPart and bPart are digits.
+        var isDigitPart;
+      
+        // If `a` and `b` are strings with substring parts that match...
+        if(aParts && bParts &&
+            (isDigitPart = reDigit.test(aParts[0])) == reDigit.test(bParts[0])) {
+          // Loop through each substring part to compare the overall strings.
+          var len = Math.min(aParts.length, bParts.length);
+          for(var i = 0; i < len; i++) {
+            var aPart = aParts[i];
+            var bPart = bParts[i];
+      
+            // If comparing digits, convert them to numbers (assuming base 10).
+            if(isDigitPart) {
+              aPart = parseInt(aPart, 10);
+              bPart = parseInt(bPart, 10);
+            }
+      
+            // If the substrings aren't equal, return either -1 or 1.
+            if(aPart != bPart) {
+              return aPart < bPart ? -1 : 1;
+            }
+      
+            // Toggle the value of isDigitPart since the parts will alternate.
+            isDigitPart = !isDigitPart;
+          }
+        
+      
+        // Use normal comparison.
+        return (a >= b) - (a <= b);
     }
-    var a, b, a1, b1, i= 0, n, L,
-    rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
-    if(as=== bs) return 0;
-    a= as.toLowerCase().match(rx);
-    b= bs.toLowerCase().match(rx);
-    L= a.length;
-    while(i<L){
-        if(!b[i]) return 1;
-        a1= a[i],
-        b1= b[i++];
-        if(a1!== b1){
-            n= a1-b1;
-            if(!isNaN(n)) return n;
-            return a1>b1? 1:-1;
-        }
-    }
-    return b[i]? -1:0;
 }
 
 
