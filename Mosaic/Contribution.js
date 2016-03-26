@@ -461,20 +461,112 @@ populate_contribution_image_tiles(secondary_map){
         //structure with correct file path
         mosaicTilesArray = mosaicTilesArray.map(function(value){
           return 'temp/contribution_image_tiles/' + value;
-        });
+        }).sort(naturalSorter);
+
+        //split array into 3 separate arrays used for each sm montage call
+        let smMontageArrays = [];
+        while (mosaicTilesArray.length > 0) {
+          smMontageArrays.push(mosaicTilesArray.splice(0,300));
+        }
+        console.log("Spliced Arrays", smMontageArrays)
+        //configure final array string (acceptable by sm montage) for each element in smMontageArray
+        for (let smMontageArray of smMontageArrays){
+          smMontageArray.push('-tile')
+          smMontageArray.push('10' + 'x' + '10');
+          smMontageArray.push('-geometry');
+          smMontageArray.push('+0+0');
+          smMontageArray.push('temp/final_mosaic/finalMosaic.jpg');
+        }
+
+        function montage(lock){
+          sm.montage(smMontageArrays[lock],function(err,stdout){
+            if (err){console.log("Contribution.js: Error while sm montaging",err)}
+            if (lock !== smMontageArrays.length-1){
+              lock++
+              console.log("Contribution.js:" + lock + "sm montage made")
+              montage(lock)
+            } else {
+              //montage all finalMosaic Images
+              //read values from temp
+              fs.readdir('temp/final_mosaic/', function(err, finalMosaics) {
+                console.log("FINAL MOSAICS", finalMosaics)
+                if (err){console.log("Contribution.js: error while performing final montage", err);}
+                
+                if (finalMosaics.indexOf('.DS_Store') > -1) {
+                  finalMosaics.splice(finalMosaics.indexOf('.DS_Store'), 1);
+                }
+
+                console.log("FINAL MOSAICS", finalMosaics)
+
+                let finalMosaicsArray = finalMosaics.reduce(function(previousValue, currentValue, currentIndex, array){
+                  return previousValue + currentValue + ' ';
+                }, "").split(' ').map(function(value){
+                  return 'temp/final_mosaic/' + value;
+                }).sort(naturalSorter)
+                finalMosaicsArray.push('-tile')
+                finalMosaicsArray.push('3' + 'x' + '3')
+                finalMosaicsArray.push('-geometry')
+                finalMosaicsArray.push('+0+0')
+                finalMosaicsArray.push('temp/final_mosaic/finalMosaic.jpg');
+
+                sm.montage(finalMosaicsArray,function(err,stdout){
+                  if (err){console.log("Contribution.js: error while compiling final montage: ", err)}
+                  /* remove('temp/final_mosaic/',function(){
+                     try {
+                       
+                         fs.mkdirSync('temp/final_mosaic/'); //replaces it but empty 
+                       
+                       
+                     } catch (e) {
+                       console.log("Contribution.js: Error while recreating temp/finalMosaic//",e)
+                     }
+                   
+                   });*/
+
+                   remove('temp/contribution_image_tiles/',function(){ //removes entire directory
+                     console.log("Contribution.js: Successfully removed the contents of temp/contribution_image_tiles/");
+                     try {
+                       
+                         fs.mkdirSync('temp/contribution_image_tiles/'); //replaces it but empty 
+                       
+                       
+                     } catch (e) {
+                       console.log("Contribution.js: Error while recreating temp/contribution_image_tiles/",e)
+                     }
+                   })
+
+                   remove('temp/contribution_images/',function(){ //removes entire directory
+                     console.log("Contribution.js: Successfully removed the contents of temp/contribution_images/");
+                     try {
+                       
+                         fs.mkdirSync('temp/contribution_images/'); //replaces it but empty 
+                       
+                       
+                     } catch (e) {
+                       console.log("Contribution.js: Error while recreating temp/contribution_images/",e)
+                     }
+                   })
+                })
+
+              });
+
+            }
+          });
+        }
+        montage(0)
 
 
         //order the value of arrays mosaic_tiles_converted/filename-0 to mosaic_tiles_converted/filename-n
-        mosaicTilesArray.sort(naturalSorter);
+        /*
         mosaicTilesArray[mosaicTilesArray.length - 1] = '-tile';
         mosaicTilesArray.push('30' + 'x' + '30');
         mosaicTilesArray.push('-geometry');
         mosaicTilesArray.push('+0+0');
         mosaicTilesArray.push('temp/final_mosaic/finalMosaic.jpg');
-            
-        console.log('tiles array',mosaicTilesArray)
+        */
+        
         //merge the contents of mosaic_tiles_converted into single image
-        sm.montage(mosaicTilesArray, function(err, stdout){
+        /*sm.montage(mosaicTilesArray, function(err, stdout){
           if (err) console.log(err);
           console.log('Contribution.js: Finished merging images to form finalMosaic');
 
@@ -485,48 +577,11 @@ populate_contribution_image_tiles(secondary_map){
             } else {
               self.callback(err,null)
             }
-            
-
-           /* remove('temp/final_mosaic/',function(){
-              try {
-                
-                  fs.mkdirSync('temp/final_mosaic/'); //replaces it but empty 
-                
-                
-              } catch (e) {
-                console.log("Contribution.js: Error while recreating temp/finalMosaic//",e)
-              }
-            
-            });*/
-
-            remove('temp/contribution_image_tiles/',function(){ //removes entire directory
-              console.log("Contribution.js: Successfully removed the contents of temp/contribution_image_tiles/");
-              try {
-                
-                  fs.mkdirSync('temp/contribution_image_tiles/'); //replaces it but empty 
-                
-                
-              } catch (e) {
-                console.log("Contribution.js: Error while recreating temp/contribution_image_tiles/",e)
-              }
-            })
-
-            remove('temp/contribution_images/',function(){ //removes entire directory
-              console.log("Contribution.js: Successfully removed the contents of temp/contribution_images/");
-              try {
-                
-                  fs.mkdirSync('temp/contribution_images/'); //replaces it but empty 
-                
-                
-              } catch (e) {
-                console.log("Contribution.js: Error while recreating temp/contribution_images/",e)
-              }
-            })
 
 
           });
 
-        });
+        });*/
    
       }
 
