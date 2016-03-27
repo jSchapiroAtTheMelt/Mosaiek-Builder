@@ -96,7 +96,7 @@ module.exports = (app) => {
     //let mosaicId = req.body.object.objectId 
     let mosaicId = "2I7yKFw3JF"
     if (mosaicId) {
-      new Mosaic(mosaicId,30,30,true,function(err,mosaic_map){
+      new Mosaic(mosaicId,40,40,true,function(err,mosaic_map){
         if (mosaic_map) {
           res.status(200);
           res.send('new mosaic map made')
@@ -133,6 +133,9 @@ module.exports = (app) => {
      console.log("------------------------------------")
 
     if (mosaicID && contributionID && contributionImageData && rgb.length === 3){
+
+      res.status(200)
+      res.send("Contribution data received")
       
       new Contribution(mosaicID,contributionID,rgb,contributionImageData,function(err,data,transformedImage,stateMap,complete){
         if (err) {
@@ -169,8 +172,6 @@ module.exports = (app) => {
 
           //io.emit('contribution',mosaicImageMap);
           if (complete){
-            res.status(200)
-            res.send("New Contribution Made")
             console.log("Middleware.js: saving mosaic image contribution map to redis for ", mosaicID);
             client.set(mosaicID+'_contributions',JSON.stringify(stateMap));
           }

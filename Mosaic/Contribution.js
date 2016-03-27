@@ -44,7 +44,36 @@ class Contribution {
     this.height = 0;
     this.callback = callback;
 
-    this.get_mosaic_map()
+    this.prepare_directories()
+  }
+
+  prepare_directories(){
+    let self = this
+    try {
+      // Query the entry
+      let directories = ["temp/","temp/contribution_images","temp/contribution_tiles","temp/final_mosaic"]
+      let directoryCount = 0;
+      for (let directory in directories){
+        fs.stat(directories[directory], function(err, stat) {
+            if(err == null) {
+                console.log(directories[directory]+ ' exists');
+            } else if(err.code == 'ENOENT') {
+                fs.mkdirSync(directories[directory]);
+            } else {
+                console.log('Contribution.js: error while checking for directories ', err.code);
+            }
+            directoryCount ++
+            if (directoryCount === directories.length) {
+              console.log('Contribution.js: All directories in place')
+              //self.get_mosaic_map();
+            }
+        });
+      }
+        
+    }
+    catch (e) {
+        if (e) { console.log("Contribution.js: error while checking existing directories",e)}
+    }
   }
 
   get_mosaic_map(){
@@ -463,10 +492,10 @@ populate_contribution_image_tiles(secondary_map){
           return 'temp/contribution_image_tiles/' + value;
         }).sort(naturalSorter);
 
-        //split array into 3 separate arrays used for each sm montage call
+        //split array into 4 separate arrays used for each sm montage call
         let smMontageArrays = [];
         while (mosaicTilesArray.length > 0) {
-          smMontageArrays.push(mosaicTilesArray.splice(0,300));
+          smMontageArrays.push(mosaicTilesArray.splice(0,400));
         }
         console.log("Spliced Arrays", smMontageArrays)
         //configure final array string (acceptable by sm montage) for each element in smMontageArray
@@ -504,7 +533,7 @@ populate_contribution_image_tiles(secondary_map){
                   return 'temp/final_mosaic/' + value;
                 }).sort(naturalSorter)
                 finalMosaicsArray.push('-tile')
-                finalMosaicsArray.push('3' + 'x' + '3')
+                finalMosaicsArray.push('4' + 'x' + '4')
                 finalMosaicsArray.push('-geometry')
                 finalMosaicsArray.push('+0+0')
                 finalMosaicsArray.push('temp/final_mosaic/finalMosaic.jpg');
