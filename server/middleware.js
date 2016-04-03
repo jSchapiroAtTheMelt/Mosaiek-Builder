@@ -6,7 +6,7 @@ let Parse = ParseCloud.Parse;
 let Mosaic = require('../Mosaic/Mosaic.js');
 let Contribution = require('../Mosaic/Contribution.js');
 let State = require('../Mosaic/State.js');
-let amqp = require('amqplib/callback_api');
+//let amqp = require('amqplib/callback_api');
 let client;
 
 
