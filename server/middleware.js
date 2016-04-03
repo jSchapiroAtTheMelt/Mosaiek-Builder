@@ -6,6 +6,7 @@ let Parse = ParseCloud.Parse;
 let Mosaic = require('../Mosaic/Mosaic.js');
 let Contribution = require('../Mosaic/Contribution.js');
 let State = require('../Mosaic/State.js');
+let amqp = require('amqplib/callback_api');
 let client;
 
 
@@ -37,7 +38,19 @@ module.exports = (app) => {
       
   }
 
+  //rabbit mq connection 
+  /*
+  amqp.connect('amqp://localhost', function(err, conn) {
+    conn.createChannel(function(err, ch) {
+      var q = 'hello';
 
+      ch.assertQueue(q, {durable: false});
+      ch.sendToQueue(q, new Buffer('Hello World!'));
+      console.log(" [x] Sent 'Hello World!'");
+    });
+  });*/
+
+  //socket.io connection
   io.on('connection',function(socket){
     console.log('Middleware.js: Socket Connected')
     let connection = socket;
@@ -93,8 +106,8 @@ module.exports = (app) => {
 
 
   app.post('/hooks/mosaiek/mosaic',(req,res) => {
-    //let mosaicId = req.body.object.objectId 
-    let mosaicId = "2I7yKFw3JF"
+    let mosaicId = req.body.object.objectId 
+    //let mosaicId = "2I7yKFw3JF"
     if (mosaicId) {
       new Mosaic(mosaicId,40,40,true,function(err,mosaic_map){
         if (mosaic_map) {
@@ -116,13 +129,13 @@ module.exports = (app) => {
   app.post('/hooks/mosaiek/contribute',(req,res) => {
     
   
-    let mosaicID = "2I7yKFw3JF"//req.body.object.mosaic.objectId; //448GSqKkkW
-    let contributionID = "g6ZyM3cRa5"//req.body.object.objectId //UFySvKQlpX
-    let contributionImageData = "http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg"//req.body.object.thumbnail; //http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg
-    //let red = req.body.object.red;
-    //let green = req.body.object.green;
-    //let blue = req.body.object.blue;
-    let rgb = [ 78, 66, 49 ]//[red,green,blue]; //
+    let mosaicID = req.body.object.mosaic.objectId; //448GSqKkkW
+    let contributionID = req.body.object.objectId //UFySvKQlpX
+    let contributionImageData = req.body.object.thumbnail; //http://files.parsetfss.com/55194c1d-1beb-471b-b879-72f6b95d608b/tfss-3e55e7e2-af92-4d55-9f20-054f05cb0f4d-image_thumbnail.jpeg
+    let red = req.body.object.red;
+    let green = req.body.object.green;
+    let blue = req.body.object.blue;
+    let rgb = [red,green,blue]; //[ 78, 66, 49 ]//
 
     console.log("Middleware.js/contribution: Mosaic Contribution ")
     console.log("------------------------------------")
@@ -168,19 +181,12 @@ module.exports = (app) => {
                 
               }
             }
-          //}
 
-          //io.emit('contribution',mosaicImageMap);
           if (complete){
             console.log("Middleware.js: saving mosaic image contribution map to redis for ", mosaicID);
             client.set(mosaicID+'_contributions',JSON.stringify(stateMap));
           }
-          
-        
-          /* Abandoning server side state for now
-          new State(mosaicID,stateMap,function(){
 
-          });*/
 
         }
 
