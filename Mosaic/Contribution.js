@@ -542,7 +542,7 @@ populate_contribution_image_tiles(secondary_map){
                   if (err){console.log("Contribution.js: error while compiling final montage: ", err)}
                     //send finalImage Back
                   fs.readFile('temp/final_mosaic/finalMosaic.jpg',function(err,data){
-                   console.log("Contribution.js: Successfully retrieved contribution image from file system, sending callback");
+                   console.log("Contribution.js: Successfully retrieved final mosaic image from file system, sending callback");
                    self.callback(null,null,data.toString('base64'),self.mosaic_map)
 
                    remove('temp/final_mosaic/',function(){
