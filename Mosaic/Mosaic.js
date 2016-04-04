@@ -68,13 +68,40 @@ class Mosaic {
 
         console.log("Mosaic.js: creating new mosaic map");
         
-        self.prepare();
+        self.prepare_directories();
       }
     
     });
-
-    
         
+  }
+
+  prepare_directories(){
+    let self = this
+    try {
+      // Query the entry
+      let directories = ["temp/","temp/mosaic_image","temp/mosaic_image_tiles"]
+      let directoryCount = 0;
+      for (let directory in directories){
+        fs.stat(directories[directory], function(err, stat) {
+            if(err == null) {
+                console.log(directories[directory]+ ' exists');
+            } else if(err.code == 'ENOENT') {
+                fs.mkdirSync(directories[directory]);
+            } else {
+                console.log('Mosaic.js: error while checking for directories ', err.code);
+            }
+            directoryCount ++
+            if (directoryCount === directories.length) {
+              console.log('Mosaic.js: All directories in place')
+              self.prepare();
+            }
+        });
+      }
+        
+    }
+    catch (e) {
+        if (e) { console.log("Mosaic.js: error while checking existing directories",e)}
+    }
   }
 
   prepare() {

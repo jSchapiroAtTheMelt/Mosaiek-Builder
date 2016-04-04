@@ -51,7 +51,7 @@ class Contribution {
     let self = this
     try {
       // Query the entry
-      let directories = ["temp/","temp/contribution_images","temp/contribution_tiles","temp/final_mosaic"]
+      let directories = ["temp/","temp/contribution_images","temp/contribution_tiles","temp/final_mosaic","contribution_image_tiles"]
       let directoryCount = 0;
       for (let directory in directories){
         fs.stat(directories[directory], function(err, stat) {
