@@ -178,7 +178,7 @@ class Contribution {
   resize_mosaic_image() {
     let self = this;
     console.log("Contribution.js: Retrieving Contribution Image Data", self.contributedImageData)
-    http.request(self.contributedImageData, function(response) {                                        
+    http.request(self.contributedImageData.url(), function(response) {                                        
       let data = new Stream();                                                    
 
       response.on('data', function(chunk) {                                       

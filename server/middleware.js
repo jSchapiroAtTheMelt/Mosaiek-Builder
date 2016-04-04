@@ -109,10 +109,10 @@ module.exports = (app) => {
     let mosaicId = req.body.object.objectId 
     //let mosaicId = "2I7yKFw3JF"
     if (mosaicId) {
+      res.status(200);
+      res.send('Middleware.js: mosaic id successfully retrieved')
       new Mosaic(mosaicId,40,40,true,function(err,mosaic_map){
         if (mosaic_map) {
-          res.status(200);
-          res.send('new mosaic map made')
           console.log("FIN",mosaic_map);
         } else {
           res.status(400)
