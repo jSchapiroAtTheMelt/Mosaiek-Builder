@@ -65,7 +65,7 @@ class Contribution {
             directoryCount ++
             if (directoryCount === directories.length) {
               console.log('Contribution.js: All directories in place')
-              //self.get_mosaic_map();
+              self.get_mosaic_map();
             }
         });
       }
@@ -540,7 +540,7 @@ populate_contribution_image_tiles(secondary_map){
 
                 sm.montage(finalMosaicsArray,function(err,stdout){
                   if (err){console.log("Contribution.js: error while compiling final montage: ", err)}
-                  /* remove('temp/final_mosaic/',function(){
+                   remove('temp/final_mosaic/',function(){
                      try {
                        
                          fs.mkdirSync('temp/final_mosaic/'); //replaces it but empty 
@@ -550,7 +550,7 @@ populate_contribution_image_tiles(secondary_map){
                        console.log("Contribution.js: Error while recreating temp/finalMosaic//",e)
                      }
                    
-                   });*/
+                   });
 
                    remove('temp/contribution_image_tiles/',function(){ //removes entire directory
                      console.log("Contribution.js: Successfully removed the contents of temp/contribution_image_tiles/");
