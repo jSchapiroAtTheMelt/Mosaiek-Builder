@@ -175,6 +175,7 @@ class Mosaic {
 
                         //convert into grid based on main mosaic cell width - http://comments.gmane.org/gmane.comp.video.graphicsmagick.help/1207
                         console.log("Mosaic.js: Converting main mosaic image into equal sized cells")
+                        
                         im.convert(['temp/'+self.input_filename+'.jpg','-crop',self.cell.width.toString()+'x'+ self.cell.height.toString(),'temp/mosaic_tiles/mosaic.jpg'], function(err,data) {
                             if(err) { throw err; }
                             console.log("Mosaic.js: Successfully created cells from main mosaic image")
