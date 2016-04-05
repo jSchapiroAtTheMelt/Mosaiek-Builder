@@ -110,12 +110,12 @@ module.exports = (app) => {
     //let mosaicId = "2I7yKFw3JF"
     if (mosaicId) {
       
-      new Mosaic(mosaicId,40,40,true,function(err,mosaic_map){
+      new Mosaic(mosaicId,30,30,true,function(err,mosaic_map){
 
         if (mosaic_map) {
           res.status(200);
           res.send('Middleware.js: mosaic id successfully retrieved')
-          console.log("FIN",mosaic_map);
+          console.log("FIN: ",mosaic_map.length);
         } else {
           res.status(400)
           res.send('unable to make new contribution', err)
@@ -160,17 +160,7 @@ module.exports = (app) => {
           io.emit('error',err);
 
         } else {
-          //if (data !== undefined && data !== null && data.match(/\d/g) !== null){
-           
-            //data = data.match(/\d/g).join("");
-            /*
-            let mosaicImageMap = {
-              mosaic:mosaicID,
-              mosaicImage:contributionID,
-              position:data,
-              rgbImage:transformedImage
-            }*/
-
+          
             console.log("Middleware.js: New contribution made: ");
             
             let roomsToEmit = mosaicRooms[mosaicID];

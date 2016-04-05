@@ -477,7 +477,6 @@ populate_contribution_image_tiles(secondary_map){
         
         //generate single string of mosaic_tile filenames
         contributions = contributions.sort(cmpStringsWithNumbers);
-        console.log('Contributions',contributions)
 
         let compoundTileString = contributions.reduce(function(previousValue, currentValue, currentIndex, array){
           return previousValue + currentValue + ' ';
@@ -495,7 +494,7 @@ populate_contribution_image_tiles(secondary_map){
         //split array into 4 separate arrays used for each sm montage call
         let smMontageArrays = [];
         while (mosaicTilesArray.length > 0) {
-          smMontageArrays.push(mosaicTilesArray.splice(0,400));
+          smMontageArrays.push(mosaicTilesArray.splice(0,300));
         }
         console.log("Spliced Arrays", smMontageArrays)
         //configure final array string (acceptable by sm montage) for each element in smMontageArray
@@ -518,14 +517,14 @@ populate_contribution_image_tiles(secondary_map){
               //montage all finalMosaic Images
               //read values from temp
               fs.readdir('temp/final_mosaic/', function(err, finalMosaics) {
-                console.log("FINAL MOSAICS", finalMosaics)
+                
                 if (err){console.log("Contribution.js: error while performing final montage", err);}
                 
                 if (finalMosaics.indexOf('.DS_Store') > -1) {
                   finalMosaics.splice(finalMosaics.indexOf('.DS_Store'), 1);
                 }
 
-                console.log("FINAL MOSAICS", finalMosaics)
+                console.log("Contribution.js: FINAL MOSAICS", finalMosaics)
 
                 let finalMosaicsArray = finalMosaics.reduce(function(previousValue, currentValue, currentIndex, array){
                   return previousValue + currentValue + ' ';
@@ -533,7 +532,7 @@ populate_contribution_image_tiles(secondary_map){
                   return 'temp/final_mosaic/' + value;
                 }).sort(naturalSorter)
                 finalMosaicsArray.push('-tile')
-                finalMosaicsArray.push('4' + 'x' + '4')
+                finalMosaicsArray.push('3' + 'x' + '3')
                 finalMosaicsArray.push('-geometry')
                 finalMosaicsArray.push('+0+0')
                 finalMosaicsArray.push('temp/final_mosaic/finalMosaic.jpg');
