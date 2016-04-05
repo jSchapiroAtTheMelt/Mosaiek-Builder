@@ -601,7 +601,19 @@ populate_contribution_image_tiles(secondary_map){
             }
           });
         }
-        montage(0)
+        remove('temp/final_mosaic/',function(){
+          try {
+              
+              fs.mkdirSync('temp/final_mosaic/'); //replaces it but empty
+              console.log('Contribution.js: Cleared and initalized final mosaics directory just for good measure') 
+              montage(0)
+            
+          } catch (e) {
+            console.log("Contribution.js: Error while recreating temp/finalMosaic//",e)
+          }
+        
+        });
+        
 
 
         //order the value of arrays mosaic_tiles_converted/filename-0 to mosaic_tiles_converted/filename-n
