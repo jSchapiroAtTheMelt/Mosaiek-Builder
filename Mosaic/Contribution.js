@@ -422,6 +422,7 @@ populate_contribution_image_tiles(secondary_map){
     
     //console.log("Contribution.js: transofrming rgb value of contribution image ");
     try {
+      console.log('Contribution.js: Main Mosaic Image Name: ',mainMosaicImageName)
       im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '80%', 'temp/contribution_images/'+ contributionImageName +'.jpg', 'temp/contribution_image_tiles/'+mainMosaicImageName],function(err,data){
         
         if (err){console.log('Contribution.js: something went wrong in generating colored contribution',err)}
