@@ -422,7 +422,7 @@ populate_contribution_image_tiles(secondary_map){
     
     //console.log("Contribution.js: transofrming rgb value of contribution image ");
     try {
-      console.log('Contribution.js: Main Mosaic Image Name: ',mainMosaicImageName)
+      console.log('Contribution.js: Main Mosaic Image Name: ',mainMosaicImageName,contributionImageName)
       im.convert(['-fill', "rgb(" + red + "," + green + "," + blue + ")", '-colorize', '80%', 'temp/contribution_images/'+ contributionImageName +'.jpg', 'temp/contribution_image_tiles/'+mainMosaicImageName],function(err,data){
         
         if (err){console.log('Contribution.js: something went wrong in generating colored contribution',err)}
@@ -431,7 +431,15 @@ populate_contribution_image_tiles(secondary_map){
           i++;
           if(i == secondary_map.length){
             console.log("Contribution.js: Done Transforming RGB  for Each Contribution Tile ")
-            self.merge_contribution_images(secondary_map)
+            fs.readdir('temp/contribution_images',function(err,contributionTiles){
+              console.log('Contribution Tiles: ',contributionTiles)
+              console.log('Contribution Tiles: ',contributionTiles.length)
+              remove('temp/contribution_image_tiles/mosaic.jpg',function(){ //removes entire directory
+                console.log("Contribution.js: Successfully removed the contents of temp/contribution_image_tiles/mosaic.jpg");
+                self.merge_contribution_images(secondary_map)
+              })
+              
+            });
 
           } else {
             if(i%chunkSize == 0){
@@ -562,7 +570,7 @@ populate_contribution_image_tiles(secondary_map){
                      console.log("Contribution.js: Successfully removed the contents of temp/contribution_image_tiles/");
                      try {
                        
-                         fs.mkdirSync('temp/contribution_image_tiles/'); //replaces it but empty 
+                         fs.mkdirSync('temp/contribution_image_tiles/mosaic.jpg'); //replaces it but empty 
                        
                        
                      } catch (e) {
