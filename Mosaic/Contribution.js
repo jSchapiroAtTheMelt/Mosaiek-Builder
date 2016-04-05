@@ -531,6 +531,7 @@ populate_contribution_image_tiles(secondary_map){
                 }, "").split(' ').map(function(value){
                   return 'temp/final_mosaic/' + value;
                 }).sort(naturalSorter)
+                
                 finalMosaicsArray.push('-tile')
                 finalMosaicsArray.push('3' + 'x' + '3')
                 finalMosaicsArray.push('-geometry')
