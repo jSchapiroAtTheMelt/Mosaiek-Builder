@@ -507,14 +507,14 @@ populate_contribution_image_tiles(secondary_map){
         }
         //console.log("Spliced Arrays", smMontageArrays)
         //configure final array string (acceptable by sm montage) for each element in smMontageArray
-        let smIndex = 0;
+        
         for (let smMontageArray of smMontageArrays){
           smMontageArray.push('-tile')
           smMontageArray.push('10' + 'x' + '10');
           smMontageArray.push('-geometry');
           smMontageArray.push('+0+0');
-          smMontageArray.push('temp/final_mosaic/finalMosaic-' + smIndex + '.jpg');
-          smIndex++;
+          smMontageArray.push('temp/final_mosaic/finalMosaic.jpg');
+          
         }
 
         function montage(lock){
